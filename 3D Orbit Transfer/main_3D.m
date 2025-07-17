@@ -16,8 +16,8 @@ AU = 149597898;
 m0 = 1;
 
 % Problem Parameters
-tf = 10; % [s]
-N = 60; % []
+tf = 15; % [s]
+N = 30; % []
 
 %% Earth data
 a_earth = 1.49579e8/AU;
@@ -79,7 +79,7 @@ ptr_ops.iter_max = 50;
 ptr_ops.iter_min = 2;
 ptr_ops.Delta_min = 1e-5;
 ptr_ops.w_vc = 1e3;
-ptr_ops.w_tr = ones(1, Nu) * 5e-0;
+ptr_ops.w_tr = ones(1, Nu) * 5e-2;
 ptr_ops.w_tr_p = 1e-1;
 ptr_ops.update_w_tr = false;
 ptr_ops.delta_tol = 2e-2;
@@ -170,14 +170,15 @@ r_cont_sol = x_cont_sol(1:3, :); v_cont_sol = x_cont_sol(4:6, :);
 
 figure
 plot_cartesian_orbit(r_cont_sol(1:3,:)', 'k', 0.4, 1); hold on
+quiver3(r(1, 1:Nu), r(2, 1:Nu), r(3, 1:Nu), u(1, :), u(2, :), u(3, :), 1, "filled", Color = "red")
 plot_cartesian_orbit(r_guess(1:3,:)', 'g', 0.4, 1); hold on
 plot_cartesian_orbit(x_cartesian_earth_plot(1:3, :)', 'b', 0.3, 1)
-plot_cartesian_orbit(x_cartesian_ast_plot(1:3, :)', 'r', 0.3, 1)
+plot_cartesian_orbit(x_cartesian_ast_plot(1:3, :)', 'cyan', 0.3, 1)
 scatter3(x_cartesian_earth_plot(1, 1), x_cartesian_earth_plot(2, 1), x_cartesian_earth_plot(3, 1), "green")
 scatter3(x_cartesian_ast_plot(1, end), x_cartesian_ast_plot(2, end), x_cartesian_ast_plot(3, end), "red")
 title('Optimal Transfer Trajectory')
 xlabel('x (AU)'); ylabel('y (AU)')
-legend('Spacecraft', "", 'Guess', "", 'Earth', "", 'Asteroid', "", "Start", "End", 'Location', 'northwest'); axis equal; grid on
+legend('Spacecraft', "", "Thrust", 'Guess', "", 'Earth', "", 'Asteroid', "", "Start", "End", 'Location', 'northwest'); axis equal; grid on
 
 %%
 figure

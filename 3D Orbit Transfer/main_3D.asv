@@ -16,8 +16,8 @@ AU = 149597898;
 m0 = 1;
 
 % Problem Parameters
-tf = 30; % [s]
-N = 60; % []
+tf = 13; % [s]
+N = 30; % []
 
 %% Earth data
 a_earth = 1.49579e8/AU;
@@ -79,7 +79,7 @@ ptr_ops.iter_max = 50;
 ptr_ops.iter_min = 2;
 ptr_ops.Delta_min = 1e-5;
 ptr_ops.w_vc = 1e3;
-ptr_ops.w_tr = ones(1, Nu) * 5e-0;
+ptr_ops.w_tr = ones(1, Nu) * 5e-2;
 ptr_ops.w_tr_p = 1e-1;
 ptr_ops.update_w_tr = false;
 ptr_ops.delta_tol = 2e-2;
@@ -115,7 +115,7 @@ end
 
 %% Create Guess
 AU_guess = interp1(tspan, [a_earth, a_ast]', t_k);
-nu_guess = interp1(tspan, [nu_earth(0), nu_ast(tf) + 2 * ]', t_k);
+nu_guess = interp1(tspan, [nu_earth(0), nu_ast(tf)]', t_k);
 r_guess = [AU_guess.*cos(nu_guess); AU_guess.*sin(nu_guess)];
 r_guess(end+1, :)=0;
 v_guess = v_circ(r_guess, nu_guess, mu);
