@@ -21,8 +21,8 @@ u = thrust;
 p = sym("p", [0, 1]);
 
 rdot = v;
-vdot = -mu/sqrt(r(1)^2+r(2)^2+r(3)^2)^3*r + u;
-mdot = -alpha * sqrt(thrust(1)^2+thrust(2)^2+thrust(3)^2) * m;
+vdot = -mu/sqrt(r(1)^2+r(2)^2+r(3)^2)^3*r + u / m;
+mdot = -alpha * sqrt(thrust(1)^2+thrust(2)^2+thrust(3)^2);
 
 xdot = [rdot; vdot; mdot];
 
