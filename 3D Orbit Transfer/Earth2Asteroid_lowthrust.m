@@ -22,12 +22,20 @@ E_earth = @(t) mean_to_eccentric_anomaly(M_earth(t), e_earth);
 nu_earth = @(t) rad2deg(eccentric_to_true_anomaly(E_earth(t), e_earth));
 
 %% Asteroid data
-a_ast = 3.073;
-e_ast = 1.177e-1;
-inc_ast = 17.45;
-Omega_ast = 14.03;
-omega_ast = 1.830;
-M_ast0 = deg2rad(305.3);
+y=importdata('GTOC12_Asteroids_Data.txt');
+
+[v, i] = max(y.data(:, 4))
+
+AST = 42;%i; % Asteroid ID in range 1:60000
+
+offset = 2;
+a_ast = y.data(AST, offset + 1);
+e_ast = y.data(AST, offset + 2);
+inc_ast = y.data(AST, offset + 3);
+Omega_ast = y.data(AST, offset + 4);
+omega_ast = y.data(AST, offset + 5);
+M_ast0 = deg2rad(y.data(AST, offset + 6));
+
 M_ast = @(t) sqrt(mu / a_ast^3) * t + M_ast0;
 E_ast = @(t) mean_to_eccentric_anomaly(M_ast(t), e_ast);
 nu_ast = @(t) eccentric_to_true_anomaly(E_ast(t), e_ast);
@@ -66,12 +74,12 @@ np = 3;
 
 initial_guess = "straight line";
 
-ptr_ops.iter_max = 80;
+ptr_ops.iter_max = 40;
 ptr_ops.iter_min = 2;
-ptr_ops.Delta_min = 1e-5;
-ptr_ops.w_vc = 1e4;
+ptr_ops.Delta_min = 5e-5;
+ptr_ops.w_vc = 1e2;
 ptr_ops.w_tr = ones(1, Nu) * 5e-3;
-ptr_ops.w_tr_p = 1e-2 * ones(1, np);
+ptr_ops.w_tr_p = 1e-4 * ones(1, np);
 ptr_ops.update_w_tr = false;
 ptr_ops.delta_tol = 6e-3;
 ptr_ops.q = 2;
@@ -79,7 +87,7 @@ ptr_ops.alpha_x = 1;
 ptr_ops.alpha_u = 1;
 ptr_ops.alpha_p = 0;
 
-scale = false;
+scale = true;
 
 f = @(t, x, u, p) dynamics(t, x, u);
 
@@ -135,6 +143,7 @@ v_cont_sol = x_cont_sol(4:6, :);
 figure
 plot_cartesian_orbit(r_cont_sol(1:3,:)', 'k', 0.4, 1); hold on
 quiver3(r(1, 1:Nu), r(2, 1:Nu), r(3, 1:Nu), u(1, :), u(2, :), u(3, :), 1, "filled", Color = "red")
+quiver3(r(1, 1), r(2, 1), r(3, 1), p(1), p(2), p(3), 2, "filled", Color = "magenta", LineWidth=1, MaxHeadSize=1)
 plot_cartesian_orbit(r_guess(1:3,:)', 'g', 0.4, 1); hold on
 plot_cartesian_orbit(x_cartesian_earth_plot(1:3, :)', 'b', 0.3, 1)
 plot_cartesian_orbit(x_cartesian_ast_plot(1:3, :)', 'cyan', 0.3, 1)
@@ -142,7 +151,7 @@ scatter3(x_cartesian_earth_plot(1, 1), x_cartesian_earth_plot(2, 1), x_cartesian
 scatter3(x_cartesian_ast_plot(1, end), x_cartesian_ast_plot(2, end), x_cartesian_ast_plot(3, end), "red")
 title('Optimal Transfer Trajectory')
 xlabel('x (AU)'); ylabel('y (AU)')
-legend('Spacecraft', "", "Thrust", 'Guess', "", 'Earth', "", 'Asteroid', "", "Start", "End", 'Location', 'northwest'); axis equal; grid on
+legend('Spacecraft', "", "Thrust", "Launch Velocity", 'Guess', "", 'Earth', "", 'Asteroid', "", "Start", "End", 'Location', 'northwest'); axis equal; grid on
 
 %%
 figure

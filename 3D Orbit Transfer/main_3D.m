@@ -31,12 +31,13 @@ E_earth = @(t) mean_to_eccentric_anomaly(M_earth(t), e_earth);
 nu_earth = @(t) rad2deg(eccentric_to_true_anomaly(E_earth(t), e_earth));
 
 %% Asteroid data
-a_ast = 3.073;
-e_ast = 1.177e-1;
-inc_ast = 17.45;
-Omega_ast = 14.03;
-omega_ast = 1.830;
-M_ast0 = deg2rad(305.3);
+ast_data = [3.193000e+00    2.341000e-01    2.631000e+01    2.170900e+02    1.312800e+02    1.726297e+02];
+a_ast = ast_data(1);
+e_ast = ast_data(2);
+inc_ast = ast_data(3);
+Omega_ast = ast_data(4);
+omega_ast = ast_data(5);
+M_ast0 = ast_data(6);
 M_ast = @(t) sqrt(mu/a_ast^3)*t+M_ast0;
 E_ast = @(t) mean_to_eccentric_anomaly(M_ast(t), e_ast);
 nu_ast = @(t) eccentric_to_true_anomaly(E_ast(t), e_ast);
@@ -84,8 +85,8 @@ ptr_ops.w_tr_p = 1e-1;
 ptr_ops.update_w_tr = false;
 ptr_ops.delta_tol = 2e-2;
 ptr_ops.q = 2;
-ptr_ops.alpha_x = 1;
-ptr_ops.alpha_u = 1;
+ptr_ops.alpha_x = 0;
+ptr_ops.alpha_u = 0;
 ptr_ops.alpha_p = 0;
 
 scale = false;
