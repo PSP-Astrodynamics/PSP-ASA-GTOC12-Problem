@@ -241,6 +241,7 @@ classdef DeterministicProblem
                 u
                 p
                 options.tspan = [0, prob.tf]
+                options.x0 = prob.x0
             end
             %DISC_PROP Summary of this function goes here
             %   Detailed explanation goes here
@@ -252,7 +253,7 @@ classdef DeterministicProblem
                 u_func = @(t) interp1(t_k, u', t)';
             end
 
-            [t_cont, x_cont] = ode45(@(t, x) prob.cont.f(t, x, u_func(t), p), options.tspan, prob.x0, prob.tolerances);
+            [t_cont, x_cont] = ode45(@(t, x) prob.cont.f(t, x, u_func(t), p), options.tspan, options.x0, prob.tolerances);
             x_cont = x_cont';
 
             if prob.u_hold == "ZOH"

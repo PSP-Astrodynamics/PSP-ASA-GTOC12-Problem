@@ -97,7 +97,7 @@ f = @(t, x, u, p) dynamics(t, x, u);
 % Convex state path constraints
 
 % Convex control constraints
-max_thrust_constraint = @(t, x, u, p) norm(u, 2)-u_max;
+max_thrust_constraint = {1:N, @(t, x, u, p) norm(u, 2)-u_max};
 control_convex_constraints = {max_thrust_constraint};
 
 % Combine convex constraints

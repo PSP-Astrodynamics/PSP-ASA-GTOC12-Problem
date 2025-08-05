@@ -62,38 +62,38 @@ Nu = (u_hold == "ZOH") * (N - 1) + (u_hold == "FOH") * N;
 parser = "CVX";
 nx = 7;
 nu = 3;
-np = 0;
+np = 3;
 
 initial_guess = "straight line";
 
-ptr_ops.iter_max = 10;
+ptr_ops.iter_max = 80;
 ptr_ops.iter_min = 2;
 ptr_ops.Delta_min = 1e-5;
-ptr_ops.w_vc = 1e2;
-ptr_ops.w_tr = ones(1, Nu) * 5e-2;
-ptr_ops.w_tr_p = 1e-1;
+ptr_ops.w_vc = 1e4;
+ptr_ops.w_tr = ones(1, Nu) * 5e-3;
+ptr_ops.w_tr_p = 1e-2 * ones(1, np);
 ptr_ops.update_w_tr = false;
-ptr_ops.delta_tol = 2e-2;
+ptr_ops.delta_tol = 6e-3;
 ptr_ops.q = 2;
 ptr_ops.alpha_x = 1;
 ptr_ops.alpha_u = 1;
 ptr_ops.alpha_p = 0;
 
-scale = true;
+scale = false;
 
 f = @(t, x, u, p) dynamics(t, x, u);
 
 max_thrust_constraint = {1:N, @(t, x, u, p) norm(u, 2) - u_max};
 v_max_nd = 6 / velocity_nd;
-departure_velocity_constraint = {1, @(t, x, u, p) norm(x(4:6)-v_earth0) - v_max_nd};
+departure_velocity_constraint = {1, @(t, x, u, p) norm(p(1:3)) - v_max_nd};
 
 convex_constraints = {max_thrust_constraint, departure_velocity_constraint};
 
-initial_bc = @(x, u, p) [x(1:3) - x_0(1:3); 0; 0; 0; m0];
-terminal_bc = @(x, u, p) [x(1:6) - x_f; 0];
+initial_bc = @(x, p) [x(1:3) - x_0(1:3); x(4:6) - p(1:3) - x_0(4:6); x(7) - m0];
+terminal_bc = @(x, p) [x(1:6) - x_f; 0];
 
 if u_hold == "ZOH"
-    min_fuel_objective = @(x, u, p) sum(norms(u, 2, 1)) * delta_t;
+    min_fuel_objective = @(x, u, p, x_ref, u_ref, p_ref) sum(norms(u, 2, 1)) * delta_t;
 else
     min_fuel_objective = @(x, u, p) sum((u(3, 1:(end - 1)) + u(3, 2:end)) / 2) * delta_t;
 end
@@ -108,40 +108,49 @@ m_guess = ones(1, N);
 
 guess.x = [r_guess; v_guess; m_guess];
 guess.u = interp1(tspan, ones(3, 2)' * 1e-5, t_k(1:Nu))';
-guess.p = [];
+guess.p = [0; 0; 0];
 
 problem = DeterministicProblem(x_0, x_f, N, u_hold, tf, f, guess, convex_constraints, min_fuel_objective, scale = scale, initial_bc = initial_bc, terminal_bc = terminal_bc, integration_tolerance = 1e-12, discretization_method = "state", N_sub = 1);
 
 [problem, Delta_disc] = problem.discretize(guess.x, guess.u, guess.p);
 ptr_sol = ptr(problem, ptr_ops, parser);
 
+%%
+if ~ptr_sol.converged
+    ptr_sol.converged_i = ptr_ops.iter_max;
+end
+
 i = ptr_sol.converged_i + 1;
 x = ptr_sol.x(:, :, i);
 u = ptr_sol.u(:, :, i);
+p = ptr_sol.p(:, i);
 r = x(1:3, :); v = x(4:6, :);
 
-[t_cont_sol, x_cont_sol, u_cont_sol] = problem.cont_prop(ptr_sol.u(:, :, i), ptr_sol.p(:, i));
+x_0_opt = x_0 + [0; 0; 0; p(1:3); 0];
+
+[t_cont_sol, x_cont_sol, u_cont_sol] = problem.cont_prop(ptr_sol.u(:, :, i), ptr_sol.p(:, i), x0 = x_0_opt);
 r_cont_sol = x_cont_sol(1:3, :);
 v_cont_sol = x_cont_sol(4:6, :);
-
+%%
 figure
-plot_cartesian_orbit(r_cont_sol(1:3, :)', 'k', 0.4, 1); hold on
+plot_cartesian_orbit(r_cont_sol(1:3,:)', 'k', 0.4, 1); hold on
 quiver3(r(1, 1:Nu), r(2, 1:Nu), r(3, 1:Nu), u(1, :), u(2, :), u(3, :), 1, "filled", Color = "red")
-plot_cartesian_orbit(r_guess(1:3, :)', 'g', 0.4, 1);
+plot_cartesian_orbit(r_guess(1:3,:)', 'g', 0.4, 1); hold on
 plot_cartesian_orbit(x_cartesian_earth_plot(1:3, :)', 'b', 0.3, 1)
 plot_cartesian_orbit(x_cartesian_ast_plot(1:3, :)', 'cyan', 0.3, 1)
 scatter3(x_cartesian_earth_plot(1, 1), x_cartesian_earth_plot(2, 1), x_cartesian_earth_plot(3, 1), "green")
 scatter3(x_cartesian_ast_plot(1, end), x_cartesian_ast_plot(2, end), x_cartesian_ast_plot(3, end), "red")
 title('Optimal Transfer Trajectory')
 xlabel('x (AU)'); ylabel('y (AU)')
-legend('Spacecraft', "", "Thrust", 'Guess', "", 'Earth', "", 'Asteroid', "", "Start", "End", 'Location', 'northwest');
-axis equal; grid on
+legend('Spacecraft', "", "Thrust", 'Guess', "", 'Earth', "", 'Asteroid', "", "Start", "End", 'Location', 'northwest'); axis equal; grid on
 
+%%
 figure
 tiledlayout(1, 2)
+
 nexttile
-plot(t_cont_sol(1:end - 1), u_cont_sol(1:3, :)); hold on
-plot(t_cont_sol(1:end - 1), vecnorm(u_cont_sol(1:3, :)))
+plot(t_cont_sol(1:end - 1), u_cont_sol(1:3,:)); hold on
+plot(t_cont_sol(1:end - 1), vecnorm(u_cont_sol(1:3,:)))
 title("Control")
 xlabel("Time")
 
@@ -149,6 +158,7 @@ nexttile
 plot(t_cont_sol(1:end), x_cont_sol(7, :))
 title("Mass")
 xlabel("Time")
+
 
 %% Helper
 function [v_guess] = v_circ(r_guess, nu_guess, mu)
