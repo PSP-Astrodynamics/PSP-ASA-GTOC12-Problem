@@ -324,8 +324,7 @@ function [guess] = lambert_initial_guess(x_1, x_2, v_1_trans, v_2_trans, N_rev, 
     dV_2_dir = x_2(4:6) - v_2_trans;
     dV_2_mag = norm(dV_2_dir);    
 
-    mf_expected = m_0 * exp(-(dV_1_mag + dV_2_mag - v_1_assist / v_star - v_2_assist / v_star) * v_star * 1000 / Isp / g_0);
-    m_guess([end, end - 1]) = mf_expected;
+    mf_expected = exp(dV)
 
     % Propagate backward from ending to estimate mass and control for
     % arriving

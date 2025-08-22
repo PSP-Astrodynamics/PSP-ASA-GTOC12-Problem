@@ -47,7 +47,7 @@ classdef DeterministicProblem
                 options.scale = true
                 options.scale_hint = []
                 options.nonconvex_constraints = [] % Cell array of constraint functions @(t, x, u, p, x_ref, u_ref, p_ref)
-                options.discretization_method = "state"
+                options.discretization_method = "error"
                 options.N_sub = []
             end
             %DETERMINISTICPROBLEM Construct an instance of this class
@@ -115,7 +115,7 @@ classdef DeterministicProblem
                 end
             elseif prob.discretization_method == "error"
                 if prob.u_hold == "ZOH"
-                    error("error discretization for ZOH not implemented")
+                    [prob.disc.A_k, prob.disc.B_k, prob.disc.E_k, prob.disc.c_k, Delta] = discretize_error_dynamics_ZOH(prob.cont.f, prob.cont.A, prob.cont.B, prob.cont.E, prob.N, [0, prob.tf], x_ref, u_ref, p_ref, prob.tolerances);
                 elseif prob.u_hold == "FOH"
                     [prob.disc.A_k, prob.disc.B_plus_k, prob.disc.B_minus_k, prob.disc.E_k, prob.disc.c_k, Delta] = discretize_error_dynamics_FOH(prob.cont.f, prob.cont.A, prob.cont.B, prob.cont.E, prob.N, [0, prob.tf], x_ref, u_ref, p_ref, prob.tolerances);
                 end
