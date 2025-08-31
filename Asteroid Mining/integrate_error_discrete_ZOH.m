@@ -16,8 +16,10 @@ function [A_k, B_k, S_k, d_k, x] = integrate_error_discrete_ZOH(x0, A, B, S, f, 
 
     y0 = [x0; STM0(:); B0(:); S0(:)];
 
+    tolerances = odeset(RelTol=1e-5, AbsTol=1e-5, Stats = "off", InitialStep = 1 * (tspan(2) - tspan(1)), MaxStep = 1 * (tspan(2) - tspan(1)));
+
     % Simulate    
-    [~, y] = ode45(@(t, y) STM_diff_eq_ZOH(t, y, A, B, S, f, u, s, nx, nu, np), tspan, y0, tolerances);
+    [~, y] = ode78(@(t, y) STM_diff_eq_ZOH(t, y, A, B, S, f, u, s, nx, nu, np), tspan, y0, tolerances);
 
     y_f = y(end, :);
 

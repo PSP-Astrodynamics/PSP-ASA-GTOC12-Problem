@@ -15,8 +15,9 @@ u_max = 0.6; % [N]
 mu = 1;
 mu_dim = mu_star;
 m0 = 3000 / m_star;
-tf = 4.4 * year_to_sec / t_star;
-N = 30;
+m_min = 500 / m_star; % dependent on a lot
+tf = 1.5 * year_to_sec / t_star;
+N = 25;
 
 %% Calculate max dV possible for continuous max thrust (ignoring external forces)
 Isp = 4000; % [s]
@@ -40,9 +41,9 @@ nu_earth = @(t) rad2deg(eccentric_to_true_anomaly(E_earth(t), e_earth));
 %% Asteroid data
 y=importdata('GTOC12_Asteroids_Data.txt');
 
-[v, i] = max(y.data(:, 4))
+[v, i] = max(y.data(:, 3))
 
-AST = 42;%i; % Asteroid ID in range 1:60000
+AST = 42069;%i; % Asteroid ID in range 1:60000
 
 offset = 2;
 a_ast = y.data(AST, offset + 1);
@@ -59,16 +60,8 @@ nu_ast = @(t) eccentric_to_true_anomaly(E_ast(t), e_ast);
 %% Initial conditions
 x_keplerian_earth = @(t) [a_earth e_earth inc_earth*pi/180 Omega_earth*pi/180 omega_earth*pi/180 M_earth(t)]';
 x_cartesian_earth = @(t) keplerian_to_cartesian(x_keplerian_earth(t), [], mu);
-x_keplerian_ast = @(t) [a_ast e_ast inc_ast*pi/180 Omega_ast*pi/180 omega_ast*pi/180 M_ast(t)]';
+x_keplerian_ast = @(t) [a_ast; e_ast; inc_ast*pi/180; Omega_ast*pi/180; omega_ast*pi/180; M_ast(t)];
 x_cartesian_ast = @(t) keplerian_to_cartesian(x_keplerian_ast(t), [], mu);
-
-t_plot = linspace(0, tf, 100);
-x_cartesian_earth_plot = zeros([6, numel(t_plot)]);
-x_cartesian_ast_plot = zeros([6, numel(t_plot)]);
-for k = 1:numel(t_plot)
-    x_cartesian_earth_plot(:, k) = x_cartesian_earth(t_plot(k));
-    x_cartesian_ast_plot(:, k) = x_cartesian_ast(t_plot(k));
-end
 
 x_earth0 = x_cartesian_earth(0);
 r0 = x_earth0(1:3); v0 = x_earth0(4:6);
@@ -80,7 +73,7 @@ tspan = [0, tf];
 t_k = linspace(tspan(1), tspan(2), N);
 delta_t = t_k(2) - t_k(1);
 
-u_hold = "ZOH";
+u_hold = "FOH";
 Nu = (u_hold == "ZOH") * (N - 1) + (u_hold == "FOH") * N;
 
 parser = "CVX";
@@ -90,14 +83,14 @@ np = 3;
 
 initial_guess = "Lambert"; % "straight line" or "Lambert"
 
-ptr_ops.iter_max = 30;
+ptr_ops.iter_max = 10;
 ptr_ops.iter_min = 2;
-ptr_ops.Delta_min = 5e-4;
+ptr_ops.Delta_min = 5e-3;
 ptr_ops.w_vc = 1e2;
-ptr_ops.w_tr = ones(1, Nu) * 5e-3;
+ptr_ops.w_tr = ones(1, Nu) * 5e-4;
 ptr_ops.w_tr_p = 1e-4 * ones(1, np);
 ptr_ops.update_w_tr = false;
-ptr_ops.delta_tol = 6e-3;
+ptr_ops.delta_tol = 1e-2;
 ptr_ops.q = 2;
 ptr_ops.alpha_x = 1;
 ptr_ops.alpha_u = 1;
@@ -107,24 +100,29 @@ scale = false;
 
 f = @(t, x, u, p) dynamics(t, x, u);
 
+min_mass_constraint = {1:N, @(t, x, u, p) m_min - x(7)};
+
 max_thrust_constraint = {1:N, @(t, x, u, p) norm(u, 2) - u_max};
 v_max_nd = 6 / v_star;
 departure_velocity_constraint = {1, @(t, x, u, p) norm(p(1:3)) - v_max_nd};
 
-convex_constraints = {max_thrust_constraint, departure_velocity_constraint};
+convex_constraints = {min_mass_constraint, max_thrust_constraint, departure_velocity_constraint};
 
 initial_bc = @(x, p) [x(1:3) - x_0(1:3); x(4:6) - p(1:3) - x_0(4:6); x(7) - m0];
 terminal_bc = @(x, p, x_ref, p_ref) [x(1:6) - x_f; 0];
 
 if u_hold == "ZOH"
-    min_fuel_objective = @(x, u, p, x_ref, u_ref, p_ref) sum(norms(u, 2, 1)) * delta_t;
+    min_fuel_objective = @(x, u, p, x_ref, u_ref, p_ref) alpha / m_star * t_star * sum(norms(u, 2, 1)) * delta_t;
 else
-    min_fuel_objective = @(x, u, p) sum((u(3, 1:(end - 1)) + u(3, 2:end)) / 2) * delta_t;
+    min_fuel_objective = @(x, u, p, x_ref, u_ref, p_ref) alpha / m_star * t_star * sum((norms(u(1:3, 1:(end - 1)), 2, 1) + norms(u(1:3, 2:end), 2, 1)) / 2) * delta_t;
 end
 
 if initial_guess == "straight line"
+    P_earth = 2 * pi *sqrt(a_earth ^ 3 / mu);
+    P_ast = 2 * pi * sqrt(a_ast ^ 3 / mu);
+    N_guess = tf / ((P_earth + P_ast) / 2);
     AU_guess = interp1(tspan, [a_earth, a_ast]', t_k);
-    nu_guess = interp1(tspan, [nu_earth(0), nu_ast(tf)]', t_k);
+    nu_guess = interp1(tspan, [nu_earth(0), nu_ast(tf) + 2 * pi * floor(N_guess)]', t_k);
     r_guess = [AU_guess .* cos(nu_guess); AU_guess .* sin(nu_guess)];
     r_guess(end + 1, :) = 0;
     v_guess = v_circ(r_guess, nu_guess, mu);
@@ -135,19 +133,35 @@ if initial_guess == "straight line"
     guess.u = interp1(tspan, ones(3, 2)' * 1e-5, t_k(1:Nu))';
     guess.p = [0; 0; 0];
 elseif initial_guess == "Lambert"
-    tofs = [tf];
+    tofs = [0.5 : 0.1 : 5]' * year_to_sec / t_star;
+    P_earth = 2 * pi *sqrt(a_earth ^ 3 / mu);
+    P_ast = 2 * pi * sqrt(a_ast ^ 3 / mu);
+    N_guess = tf / ((P_earth + P_ast) / 2);
     for i = 1 : numel(tofs)
         x_f_tofs(:, i) = x_cartesian_ast(tofs(i));
     end
-    [v1_best, v2_best, dV_best, ToF_best, N_best] = best_lambert(repmat(x_0(1:6), 1, numel(tofs)), x_f_tofs, tofs, 3, 6 / v_star, 0);
-    t_k_best = linspace(0, ToF_best, N);
+    [v1_best, v2_best, dV_best, ToF_best, N_best, direction_best] = best_lambert(repmat(x_0(1:6), 1, numel(tofs)), x_f_tofs, tofs, [floor(N_guess), ceil(N_guess)], 6 / v_star, 0);
+    tf = ToF_best;
+    x_f = x_cartesian_ast(tf);
+
+    tspan = [0, tf];
+    t_k = linspace(tspan(1), tspan(2), N);
+    delta_t = t_k(2) - t_k(1);
 
     if dV_best > dV_max
         warning("WARNING: Lambert delta V %.1f%% greater than estimated max low thrust delta V", (dV_best - dV_max) / dV_max * 100)
     end
 
-    guess = lambert_initial_guess(x_0(1:6), x_f_tofs(:, tofs == ToF_best), v1_best, v2_best, N_best, t_k_best, u_max, alpha, t_star, m_star, Isp, g_0, v_star, 6, 0, m0);
+    guess = lambert_initial_guess(x_0(1:6), x_f_tofs(:, tofs == ToF_best), v1_best, v2_best, N_best, t_k, u_max, alpha, t_star, m_star, Isp, g_0, v_star, 6, 0, m0);
     guess.p = 6 / v_star * guess.u(:, 1) / norm(guess.u(:, 1));
+    guess.u = guess.u * 0 + 1e-5;
+    if u_hold == "FOH"
+        guess.u(:, end + 1) = [0;0;0] + 1e-5;
+    end
+elseif initial_guess == "previous solution"
+    guess.x = ptr_sol_prev.x(:, :, ptr_sol.converged_i);
+    guess.u = ptr_sol_prev.u(:, :, ptr_sol.converged_i);
+    guess.p = ptr_sol_prev.p(1:3, ptr_sol.converged_i);
 end
 
 problem = DeterministicProblem(x_0, x_f, N, u_hold, tf, f, guess, convex_constraints, min_fuel_objective, scale = scale, initial_bc = initial_bc, terminal_bc = terminal_bc, integration_tolerance = 1e-12, discretization_method = "error", N_sub = 1);
@@ -172,6 +186,26 @@ x_0_opt = x_0 + [0; 0; 0; p(1:3); 0];
 r_cont_sol = x_cont_sol(1:3, :);
 v_cont_sol = x_cont_sol(4:6, :);
 %%
+
+t_plot = linspace(0, tf, 100);
+x_cartesian_earth_plot = zeros([6, numel(t_plot)]);
+x_cartesian_ast_plot = zeros([6, numel(t_plot)]);
+for k = 1:numel(t_plot)
+    x_cartesian_earth_plot(:, k) = x_cartesian_earth(t_plot(k));
+    x_cartesian_ast_plot(:, k) = x_cartesian_ast(t_plot(k));
+end
+
+
+[t_cont_sol, x_cont_sol, u_cont_sol] = problem.cont_prop(ptr_sol.u(:, :, i), ptr_sol.p(:, i), x0 = x_0_opt);
+
+% 
+% r = guess.x(1:3, :);
+% r_cont_sol = guess.x(1:3, :);
+% v_cont_sol = guess.x(4:6, :);
+% u = guess.u;
+% p = guess.p;
+r_guess = guess.x(1:3, :);
+
 figure
 plot_cartesian_orbit(r_cont_sol(1:3,:)', 'k', 0.4, 1); hold on
 quiver3(r(1, 1:Nu), r(2, 1:Nu), r(3, 1:Nu), u(1, :), u(2, :), u(3, :), 1, "filled", Color = "red")
@@ -190,8 +224,8 @@ figure
 tiledlayout(1, 2)
 
 nexttile
-plot(t_cont_sol(1:end - 1), u_cont_sol(1:3,:), LineWidth=1); hold on
-plot(t_cont_sol(1:end - 1), vecnorm(u_cont_sol(1:3,:)), LineWidth=1)
+plot(t_cont_sol(1:end - (N - Nu)), u_cont_sol(1:3,:), LineWidth=1); hold on
+plot(t_cont_sol(1:end - (N - Nu)), vecnorm(u_cont_sol(1:3,:)), LineWidth=1)
 title("Control")
 xlabel("Time")
 
@@ -201,7 +235,11 @@ title("Mass")
 xlabel("Time")
 
 %% Compare dV used with rocket equation estimate
-dV_cont = sum(vecnorm(u_cont_sol) ./ (x_cont_sol(7, 1 : (end - 1)) * m_star) .* diff(t_cont_sol)' * t_star / 1000 / v_star); % delta V
+if u_hold == "ZOH"
+    dV_cont = sum(vecnorm(u_cont_sol) ./ (x_cont_sol(7, 1 : (end - 1)) * m_star) .* diff(t_cont_sol)' * t_star / 1000 / v_star); % delta V
+elseif u_hold == "FOH"
+    dV_cont = sum(((vecnorm(u_cont_sol(:, 1 : (end - 1))) ./ (x_cont_sol(7, 1 : (end - 1)) * m_star) + vecnorm(u_cont_sol(:, 2 : end))) ./ (x_cont_sol(7, 2 : end) * m_star)) / 2 .* diff(t_cont_sol)' * t_star / 1000 / v_star); % delta V
+end
 
 dV_rocket_equation = Isp * g_0 * log(x_0(7) / x(7, end)) / 1000 / v_star;
 
@@ -215,7 +253,7 @@ function [v_guess] = v_circ(r_guess, nu_guess, mu)
 end
 
 
-function [v1_best, v2_best, dV_best, ToF_best, N_best] = best_lambert(x_1, x_2, ToF, N_max, v1_assist, v2_assist)
+function [v1_best, v2_best, dV_best, ToF_best, N_best, direction_best] = best_lambert(x_1, x_2, ToF, N, v1_assist, v2_assist)
     % if ToF is an array, will pick lowest dV
 
     %enter path of the the dll directory with all required files including .bin (with slash at end) 
@@ -233,17 +271,18 @@ function [v1_best, v2_best, dV_best, ToF_best, N_best] = best_lambert(x_1, x_2, 
 
     % Solve Lambertus Maximus
     Q = numel(ToF) * 2;
-    r1vec = repmat(x_1(1:3), 1, Q);
-    r2vec = repmat(x_2(1:3), 1, Q);
-    direction = [ones([Q, 1]); -ones(Q, 1)];
+    r1vec = repmat(x_1(1:3, :), 1, 2);
+    r2vec = repmat(x_2(1:3, :), 1, 2);
+    direction = [ones([Q / 2, 1]); -ones(Q / 2, 1)];
 
+    N_max = max(N);
 
     [v1vec,v2vec,uptoNhave,infoReturnStatus,infoHalfRevStatus] = ivLam_thruN_multipleInputDLL(Q, r1vec, r2vec, repmat(ToF, 2, 1), direction, N_max);
 
     %in order to retrieve solutions, we need the Ni2col() function to get the correct column
             
     % Retrieve solutions
-    [Ns, Qs] = meshgrid(0 : N_max, 1 : Q);
+    [Ns, Qs] = meshgrid(N, 1 : Q);
     jcolumn = Ni2col(Ns, Qs, N_max);
 
     % Filter out NaN and 0 solutions
@@ -269,12 +308,17 @@ function [v1_best, v2_best, dV_best, ToF_best, N_best] = best_lambert(x_1, x_2, 
     filter_indices = find(v_filter);
     q_best = mod(filter_indices(q_best_filtered) - 1, Q) + 1;
 
-    N_best = ceil(filter_indices(q_best_filtered) / Q) - 1;
+    N_best = N(ceil(filter_indices(q_best_filtered) / Q));
 
-    ToF_best = ToF(q_best);
+    ToF_best = ToF(mod(q_best - 1, numel(ToF)) + 1);
+
+    direction_best = direction(q_best);
 
     % Package outputs
     % v1_best, v2_best, dV_best, ToF_best, N_best
+
+    % Double check everything was extracted correctly
+    %%[v1vecA,v2vecA,infoReturnStatus,infoHalfRevStatus,detailsVec] = ivLam_singleN_withDetailsDLL(x_1(1:3, mod(q_best - 1, numel(ToF)) + 1), x_2(1:3, mod(q_best - 1, numel(ToF)) + 1), ToF_best, direction(q_best), N_best);
 
     %unload the dll and clear memory from the lambert routines
     iflag= ivLam_unloadDataDLL();
@@ -290,7 +334,7 @@ function [guess] = lambert_initial_guess(x_1, x_2, v_1_trans, v_2_trans, N_rev, 
     [x_1_trans_keplerian, thetastar_1_trans] = cartesian_to_keplerian(x_1_trans, [0; 0; 1], [1; 0; 0], 1);
     [x_2_trans_keplerian, thetastar_2_trans] = cartesian_to_keplerian(x_2_trans, [0; 0; 1], [1; 0; 0], 1);
 
-    thetastar_trans = linspace(thetastar_1_trans, thetastar_2_trans + N_rev * 2 * pi, numel(t_k));
+    thetastar_trans = linspace(thetastar_1_trans, thetastar_2_trans + 2 * pi * (thetastar_2_trans < thetastar_1_trans) + N_rev * 2 * pi, numel(t_k));
 
     transfer_cartesian = keplerian_to_cartesian_array(repmat(x_1_trans_keplerian, 1, numel(t_k))', thetastar_trans, 1)';
 
@@ -307,7 +351,7 @@ function [guess] = lambert_initial_guess(x_1, x_2, v_1_trans, v_2_trans, N_rev, 
     % Propagate forward from beginning to estimate mass and control for
     % departing
     m_guess = zeros([1, numel(t_k)]);
-    m_guess(1) = m_0;
+    m_guess(1:end) = m_0;
     dV_1_left = dV_1_mag - v_1_assist / v_star;
     for k = 1 : (numel(t_k) - 1)
         m_guess(k + 1) = m_guess(k) - alpha * u_max * (t_k(k + 1) - t_k(k)) * t_star / m_star;
@@ -318,7 +362,7 @@ function [guess] = lambert_initial_guess(x_1, x_2, v_1_trans, v_2_trans, N_rev, 
         if dV_1_left < 0
             m_guess((k + 1) : end) = m_guess(k);
             break;
-        end
+       end
     end
 
     dV_2_dir = x_2(4:6) - v_2_trans;
@@ -336,7 +380,7 @@ function [guess] = lambert_initial_guess(x_1, x_2, v_1_trans, v_2_trans, N_rev, 
         if m_guess(k) + delta_m < m_guess(k - 1)
             m_guess(k - 1) = m_guess(k) + delta_m;
             dV_2_done = dV_2_done + Isp * g_0 * log(m_guess(k - 1) / m_guess(k)) / 1000 / v_star;
-    
+            
             u_guess(:, k) = u_max * dV_2_dir;
         else
             break;
@@ -349,5 +393,5 @@ function [guess] = lambert_initial_guess(x_1, x_2, v_1_trans, v_2_trans, N_rev, 
 
     % Package guess
     guess.x = [transfer_cartesian; m_guess];
-    guess.u = u_guess;
+    guess.u = u_guess + 1e-5;
 end

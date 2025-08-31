@@ -62,11 +62,11 @@ cvx_begin quiet
 
         % Boundary Conditions
         prob.initial_bc(prob.unscale_x(X(:, 1)), prob.unscale_p(p)) + v_0 == 0;
-        prob.terminal_bc(prob.unscale_x(X(:, prob.N)), prob.unscale_p(p)) + v_N == 0;
+        prob.terminal_bc(prob.unscale_x(X(:, prob.N)), prob.unscale_p(p), prob.unscale_x(x_ref(:, prob.N)), prob.unscale_p(p_ref)) + v_N == 0;
 
         % Trust Region Constraints
         ptr_ops.alpha_x * sum(sum_square(X(:, 1:prob.Nu) - x_ref(:, 1:prob.Nu))) + ptr_ops.alpha_u * sum(sum_square(U - u_ref)) <= eta;
-        ptr_ops.alpha_p * norms(p - p_ref, ptr_ops.q, 1) <= eta_p;
+        norms(ptr_ops.alpha_p .* (p - p_ref), ptr_ops.q, 1) <= eta_p;
 cvx_end
 % 
 % ck = zeros([prob.n.cvx, prob.Nu]);

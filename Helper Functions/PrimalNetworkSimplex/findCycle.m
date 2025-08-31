@@ -15,9 +15,10 @@ function [ pr] = findCycle( A,ee,isU )
 
     [j,i] = myDivide(ee,length(A));
 
-    [P, d] = shortestpath(digraph(A),i,j);
+    [P, ~] = shortestpath(digraph(A),i,j);
     %[d, P, ~] = graphshortestpath(sparse(A),i,j); %the shortest path, and there is one and only one path
     m = length(P);
+    pr = zeros([m, 1]);
     for i = 1:m
         pr(i) = P(m-i+1);
     end

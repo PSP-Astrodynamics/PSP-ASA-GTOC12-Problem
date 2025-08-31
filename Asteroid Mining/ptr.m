@@ -36,7 +36,7 @@ for i = 1:(ptr_ops.iter_max)
             [x_ref(:, :, i + 1), u_ref(:, :, i + 1), sol_info] = solve_ptr_convex_subproblem_no_p(prob, ptr_ops, x_ref(:, :, i), u_ref(:, :, i));
         elseif parser == "CVXPY"
             %[x_ref_CVX, u_ref_CVX, sol_info_CVX] = solve_ptr_convex_subproblem_no_p(prob, ptr_ops, x_ref(:, :, i), u_ref(:, :, i));
-    
+            
             [x_ref(:, :, i + 1), u_ref(:, :, i + 1), sol_info, problem] = solve_ptr_convex_subproblem_no_p_CVXPY(prob, ptr_ops, x_ref(:, :, i), u_ref(:, :, i), problem);
 
             %figure

@@ -66,6 +66,12 @@ if(already)
         disp('**error: see log file!')  
         return
     end
+
+    if(includeSecondOrder)
+        % Reshape outputs to be their intended siez
+        dzdyT = reshape(dzdyT, [7, 6, Q]);
+        d2zdyT = reshape(d2zdyT, [7, 7, 6, Q]);
+    end
 else
     disp('**error: library not loaded!')
     return

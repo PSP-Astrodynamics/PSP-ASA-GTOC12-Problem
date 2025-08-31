@@ -3,13 +3,13 @@
 % Start with a self cleaning ship for simplicity
 asteroid_IDs = [1, 20, 33];
 n_A = numel(asteroid_IDs);
-route = [shuffle(asteroid_IDs), shuffle(asteroid_IDs)] %[output:5d9a63e0]
+route = [shuffle(asteroid_IDs), shuffle(asteroid_IDs)] %[output:2115606f]
 
 n_seg = numel(route) - 1; % Number of segments
 N = 1; % Number of ships
 %[text] ## Asteroid Data
 ast_data = importdata('GTOC12_Asteroids_Data.txt');
-
+mu = 1;
 ast_cart_funcs = get_asteroid_cartesian_orbits(ast_data, route, mu);
 %%
 %[text] ## Problem Data
@@ -44,15 +44,19 @@ N_min = @(m_ast_avg) min(100, 2 * exp(0.004 * m_ast_avg));
 %[text] ## Construct Problem
 % Create guess
 six_months = 0.5 * year_to_sec / t_star;
-ToF_guess = [0.5; 0.5; 3; 0.5] * year_to_sec / t_star;
+ToF_guess = [0.5; 0.5; 3; 0.5; 0.5] * year_to_sec / t_star;
 m0_guess = m0_max * ones([N, 1]);
 
-x1_guess = zeros([6, 2 * n_A]);
-x2_guess = zeros([6, 2 * n_A]);
-for i = 1 : (n_seg - 1)
-    x1_guess(:, i) = ast_cart_funcs{i}(sum(ToF_guess(1 : i)));
-    x2_guess(:, i + 1) = ast_cart_funcs{i + 1}(sum(ToF_guess(1 : i)));
+x1_guess = zeros([6, n_seg]);
+x2_guess = zeros([6, n_seg]);
+times = zeros(2, n_seg);
+for i = 1 : n_seg
+    times(1, i) = sum(ToF_guess(1 : (i - 1)));
+    x1_guess(:, i) = ast_cart_funcs{i}(times(1, i));
+    times(2, i) = sum(ToF_guess(1 : i));
+    x2_guess(:, i) = ast_cart_funcs{i + 1}(times(2, i));
 end
+%%
 
 % Create dV func and derivatives
 ToF_sym = sym("ToF", [n_seg, 1]);
@@ -61,25 +65,32 @@ v1_sym = sym("v1", [3, 1]);
 v2_sym = sym("v2", [3, 1]);
 
 function [dV] = dV_func(ToFs, v1, v2, ast_cart_funcs, i)
-    x1_cart = ast_cart_funcs{i}(sum(ToFs(1 : i)));
-    x2_cart = ast_cart_funcs{i + 1}(sum(ToFs(1 : (i + 1))));
+    x1_cart = ast_cart_funcs{i}(sum(ToFs(1 : (i - 1))));
+    x2_cart = ast_cart_funcs{i + 1}(sum(ToFs(1 : i)));
     
     dV = sqrt(sum((x1_cart(4 : 6) - v1) .^ 2)) + sqrt(sum((x2_cart(4 : 6) - v2) .^ 2));
 end
 
-%for i = 1 : n_seg
-    %jac_func = matlabFunction(jacobian(dV_func(ToF_sym, v1_sym, v2_sym, ast_cart_funcs, i)), "Vars", [{ToF_sym}; {v1_sym}; {v2_sym}]);
-    %jac(i) = {@(ToF, v1, v2) jac_func(ToF, v1, v2)};
-    
-    %hess_func = matlabFunction(hessian(dV_func(ToF_sym, v1_sym, v2_sym, ast_cart_funcs, i)), "Vars", [{ToF_sym}; {v1_sym}; {v2_sym}]);
-    %hess(i) = {@(t) hess_func()};
-%end
+function [jac_func] = dV_jacobian(ToFs, v1, v2, ast_cart_funcs, i)
+
+end
+
+function [hess_func] = dV_hessian()
+
+end
+
+for i = 1 : n_seg
+    jac(i) = {@(ToF, v1, v2) dV_jacobian(ToF, v1, v2)};
+    % 
+    % hess_func = matlabFunction(hessian(dV_func(ToF_sym, v1_sym, v2_sym, ast_cart_funcs, i)), "Vars", [{ToF_sym}; {v1_sym}; {v2_sym}]);
+    % hess(i) = {@(t) hess_func()};
+end
 
 % Find dV, sensitivities for asteroids using ivLam2
 v1_assist = 0; % For launch vehicle boost when leaving Earth
 v2_assist = 0; % For acceptable relative velocity when coming back to Earth
 N_max = 10; % Max revolutions for an orbit
-[v1, v2, dV, N, dpdz, d2dpdz2] = best_lambert_with_sensitivities(x1_guess, x2_guess, ToF_guess, N_max, v1_assist, v2_assist); %[output:34b27f7f] %[output:37058fa8] %[output:8092e680] %[output:1d41c2d4]
+[v1, v2, dV, N, dpdz, d2dpdz2] = best_lambert_with_sensitivities(x1_guess, x2_guess, ToF_guess, N_max, v1_assist, v2_assist); %[output:6dae74e2] %[output:9b83e6a0] %[output:20f1a42d]
 
 % Find dV using low thtrust
 %Asteroid2Asteroid_lowthrust();
@@ -87,7 +98,15 @@ N_max = 10; % Max revolutions for an orbit
 % Get/create Lamb dV -> mass surrogate
 
 %%
-[dV_approx] = lambert_second_order_approx(dV_bar, delz, dpdz, d2pdz2, ddvdp, d2dvdp2);
+dV_bar = dV;
+dT = 0.1;
+dV_approx = zeros([n_seg, 1]);
+for s = 1 : n_seg
+    dr1 = ast_cart_funcs{s}(times(1, s) + dT);
+    dr2 = ast_cart_funcs{s + 1}(times(2, s) + dT);
+    delz = [dr1; dr2; dT];
+    [dV_approx(s)] = lambert_second_order_approx(dV_bar, delz, dpdz, d2pdz2, ddvdp, d2dvdp2);
+end
 %%
 %[text] ## Setup Optimization Problem
 options = optimoptions('fmincon','Display','iter','Algorithm','sqp');
@@ -171,7 +190,7 @@ function [ast_cart_funcs] = get_asteroid_cartesian_orbits(ast_data, IDs, mu)
 end
 
 
-function [v1_best, v2_best, dV_best, N_best, dpdz, d2dpdz2] = best_lambert_with_sensitivities(x_1, x_2, ToF, N_max, v1_assist, v2_assist)
+function [v1_best, v2_best, dV_best, N_best, dpdz, d2pdz2] = best_lambert_with_sensitivities(x_1, x_2, ToF, N_max, v1_assist, v2_assist)
     % if ToF is an array, will pick lowest dV
 
     %enter path of the the dll directory with all required files including .bin (with slash at end) 
@@ -195,12 +214,8 @@ function [v1_best, v2_best, dV_best, N_best, dpdz, d2dpdz2] = best_lambert_with_
   
     includeSecondOrder=true;
     % First find N (best number of revolutions)
-    [v1vec,v2vec,uptoNhave,infoReturnStatus,infoHalfRevStatus,dzdyT,d2zdyT] = ivLam_thruN_multipleInputDLL(Q, r1vec, r2vec, ToF, direction, N_max, includeSecondOrder);
+    [v1vec,v2vec,uptoNhave,infoReturnStatus,infoHalfRevStatus] = ivLam_thruN_multipleInputDLL(Q, r1vec, r2vec, ToF, direction, N_max);
     
-    % Calculate partials
-    [v1vec,v2vec,infoReturnStatus,infoHalfRevStatus,dzdyT,d2zdyT] = ivLam_NtildeWithDerivs_multipleInputDLL(Q,r1vec,r2vec,ToF,direction,Ntilde,includeSecondOrder)  
-    %in order to retrieve solutions, we need the Ni2col() function to get the correct column
-            
     % Retrieve solutions
     [Ns, Qs] = meshgrid(0 : N_max, 1 : Q);
     jcolumn = Ni2col(Ns, Qs, N_max);
@@ -221,13 +236,24 @@ function [v1_best, v2_best, dV_best, N_best, dpdz, d2dpdz2] = best_lambert_with_
     dV = max(vecnorm(v1_b(:, v_filter) - vel1) - v1_assist, 0) + max(vecnorm(v2_b(:, v_filter) - vel2) - v2_assist, 0);
 
     % Extract best solution
-    [dV_best, q_best_filtered] = min(dV);
-    v1_best = vel1(:, q_best_filtered);
-    v2_best = vel2(:, q_best_filtered);
+    % [dV_best, q_best_filtered] = min(dV);
+    % v1_best = vel1(:, q_best_filtered);
+    % v2_best = vel2(:, q_best_filtered);
+    v1_best = vel1;
+    v2_best = vel2;
+    dV_best = dV;
 
     filter_indices = find(v_filter);
 
-    N_best = ceil(filter_indices(q_best_filtered) / Q) - 1;
+    N_best = ceil(filter_indices / Q) - 1;
+
+    % Calculate partials
+    [v1vec,v2vec,infoReturnStatus,infoHalfRevStatus,dpdz,d2pdz2] = ivLam_NtildeWithDerivs_multipleInputDLL(Q, r1vec, r2vec, ToF, direction(filter_indices), N_best, includeSecondOrder);
+             
+
+    % Why transposed?
+    dpdz = permute(dpdz, [2, 1, 3]);
+    d2pdz2 = permute(d2pdz2, [3, 1, 2, 4]);
 
     % Package outputs
     % v1_best, v2_best, dV_best, ToF_best, N_best
@@ -275,18 +301,15 @@ end
 %[metadata:view]
 %   data: {"layout":"inline"}
 %---
-%[output:5d9a63e0]
-%   data: {"dataType":"matrix","outputData":{"columns":6,"name":"route","rows":1,"type":"double","value":[["20","1","33","1","33","20"]]}}
+%[output:2115606f]
+%   data: {"dataType":"matrix","outputData":{"columns":6,"name":"route","rows":1,"type":"double","value":[["33","1","20","33","20","1"]]}}
 %---
-%[output:34b27f7f]
+%[output:6dae74e2]
 %   data: {"dataType":"textualVariable","outputData":{"name":"coefFilePath","value":"'C:\\Users\\thatf\\OneDrive\\Documents\\ASA\\PSP-ASA-GTOC12-Problem\\LambertSolvers\\ivLamV2p41_738416p65617\\matlabInterface\\lib\\ivLamTree_20210202_160219_i2d8.bin'"}}
 %---
-%[output:37058fa8]
+%[output:9b83e6a0]
 %   data: {"dataType":"textualVariable","outputData":{"name":"upToNmaxForStoringDetails","value":"-1"}}
 %---
-%[output:8092e680]
-%   data: {"dataType":"text","outputData":{"text":"\nivLam routines successfully initialized, see log file for details, no limit on number of revolutions\ncoef path and dll path appear correct, data loaded ok!\n","truncated":false}}
-%---
-%[output:1d41c2d4]
-%   data: {"dataType":"error","outputData":{"errorType":"runtime","text":"Error using <a href=\"matlab:matlab.lang.internal.introspective.errorDocCallback('ivLam_thruN_multipleInputDLL')\" style=\"font-weight:bold\">ivLam_thruN_multipleInputDLL<\/a>\nToo many input arguments.\n\nError in <a href=\"matlab:matlab.lang.internal.introspective.errorDocCallback('ship_ToF_optimization>best_lambert_with_sensitivities', 'C:\\Users\\thatf\\OneDrive\\Documents\\ASA\\PSP-ASA-GTOC12-Problem\\ship_ToF_optimization.m', 197)\" style=\"font-weight:bold\">ship_ToF_optimization>best_lambert_with_sensitivities<\/a> (<a href=\"matlab: opentoline('C:\\Users\\thatf\\OneDrive\\Documents\\ASA\\PSP-ASA-GTOC12-Problem\\ship_ToF_optimization.m',197,0)\">line 197<\/a>)\n    [v1vec,v2vec,uptoNhave,infoReturnStatus,infoHalfRevStatus,dzdyT,d2zdyT] = ivLam_thruN_multipleInputDLL(Q, r1vec, r2vec, ToF, direction, N_max, includeSecondOrder);\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"}}
+%[output:20f1a42d]
+%   data: {"dataType":"text","outputData":{"text":"\nivLam routines successfully initialized, see log file for details, no limit on number of revolutions\ncoef path and dll path appear correct, data loaded ok!\nivLam data successfully unloaded, see log file for details\nivLamDLL library succesfully unloaded\n","truncated":false}}
 %---

@@ -24,6 +24,7 @@ function [ x, af, bn] = findBn( T,ee,z,isU )
     [x] = findCycle(A, ee, isU);    
 
     len = length(x);
+    y = zeros([len - 1, 1]);
     for i=1:len-1                                    
         y(i) = z(x(i),x(i+1));     
     end
