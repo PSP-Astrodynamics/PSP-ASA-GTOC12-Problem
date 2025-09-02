@@ -7,7 +7,6 @@ function [f,T,L,U] = pivot(f,z,T,L,U,ee,isU)
 
     n = length(z);
     Tnew = [T;ee];   
-    %coder.varsize("T", [97, 1], [1, 0]);
     
     %selecting a leveiving arc "x"
     [x, af, bn] = findBn(Tnew,ee,z, isU);        
@@ -18,7 +17,7 @@ function [f,T,L,U] = pivot(f,z,T,L,U,ee,isU)
     else
         L = [L;Tnew(q)];       
     end
-    T = Tnew(((1:98) ~= q)); 
+    T = Tnew(((1:end) ~= q)); 
     
     %adjust the spinning tree
     len = length(x);

@@ -17,7 +17,7 @@ mu_dim = mu_star;
 m0 = 3000 / m_star * 0.8;
 m_min = 500 / m_star; % dependent on a lot
 t0 = 0.4 * year_to_sec / t_star;
-ToF = 1.5 * year_to_sec / t_star;
+ToF = 1 * year_to_sec / t_star;
 tf = ToF;
 tf_actual = t0 + ToF;
 N = 15;
@@ -33,7 +33,7 @@ dV_max = Isp * g_0 * log(m0 / mf) / 1000 / v_star;
 %% Asteroid data
 y=importdata('GTOC12_Asteroids_Data.txt');
 
-for ID1 = 994 : 994
+for ID1 = 100 : 100
 %ID1 = 104;
 [x_kep_0_ast1, M_ast1, E_ast1, nu_ast1, x_keplerian_ast1, x_cartesian_ast1] = get_asteroid(ID1);
 
@@ -161,81 +161,6 @@ problem = DeterministicProblem(x_0, x_f, N, u_hold, tf, f, guess, convex_constra
 [problem, Delta_disc] = problem.discretize(guess.x, guess.u, guess.p);
 ptr_sol = ptr(problem, ptr_ops, parser);
 
-%% Look at different discretization methods
-% test_i = 2;
-% 
-% test.x = ptr_sol.x(:, :, test_i);
-% test.u = ptr_sol.u(:, :, test_i);
-% test.p = ptr_sol.p(:, test_i);
-% 
-% % Linearized matrices
-% t_sym = sym("t");
-% x_sym = sym("x", [nx, 1]);
-% u_sym = sym("u", [nu, 1]);
-% p_sym = sym("p", [np, 1]);
-% 
-% A = matlabFunction(jacobian(f(t_sym, x_sym, u_sym, p_sym), x_sym),"Vars", [{t_sym}; {x_sym}; {u_sym}; {p_sym}]);
-% B = matlabFunction(jacobian(f(t_sym, x_sym, u_sym, p_sym), u_sym),"Vars", [{t_sym}; {x_sym}; {u_sym}; {p_sym}]);
-% S = matlabFunction(jacobian(f(t_sym, x_sym, u_sym, p_sym), p_sym),"Vars", [{t_sym}; {x_sym}; {u_sym}; {p_sym}]);
-% 
-% [problem, Delta_disc] = problem.discretize(test.x, test.u, test.p);
-% Delta_disc_total = sum(vecnorm(Delta_disc))
-% 
-% A_k = problem.disc.A_k;
-% B_k_plus = problem.disc.B_plus_k;
-% B_k_minus = problem.disc.B_minus_k;
-% S_k = problem.disc.E_k;
-% d_k = problem.disc.c_k;
-% 
-% %% Try RK4 Discretization
-% N_sub = 20;
-% [A_k_rk4, B_k_plus_rk4, B_k_minus_rk4, S_k_rk4, d_k_rk4, Delta_rk4] = discretize_error_dynamics_FOH_RK4(f, A, B, S, N, tspan, test.x, test.u, test.p, N_sub);
-% 
-% A_err = sum(pagenorm(A_k_rk4 - A_k), "all");
-% B_minus_err = sum(pagenorm(B_k_minus_rk4 - B_k_minus), "all");
-% B_plus_err = sum(pagenorm(B_k_plus_rk4 - B_k_plus), "all");
-% S_err = sum(pagenorm(S_k_rk4 - S_k), "all");
-% d_err = sum(pagenorm(d_k_rk4 - d_k), "all");
-% Delta_err = sum(vecnorm(Delta_rk4 - Delta_disc));
-% fprintf("A: %.3f, B-: %.3f, B+: %.3f, S: %.3f, d: %.3f, Delta: %.5f\n", A_err, B_minus_err, B_plus_err, S_err, d_err, Delta_err);
-% 
-% %% Try RK4 Discretization using same code as RKVs
-% N_sub = 20;
-% [A_k_rk4, B_k_plus_rk4, B_k_minus_rk4, S_k_rk4, d_k_rk4, Delta_rk4] = discretize_error_dynamics_FOH_RK4_generic(f, A, B, S, N, tspan, test.x, test.u, test.p, N_sub);
-% 
-% A_err = sum(pagenorm(A_k_rk4 - A_k), "all");
-% B_minus_err = sum(pagenorm(B_k_minus_rk4 - B_k_minus), "all");
-% B_plus_err = sum(pagenorm(B_k_plus_rk4 - B_k_plus), "all");
-% S_err = sum(pagenorm(S_k_rk4 - S_k), "all");
-% d_err = sum(pagenorm(d_k_rk4 - d_k), "all");
-% Delta_err = sum(vecnorm(Delta_rk4 - Delta_disc));
-% fprintf("A: %.3f, B-: %.3f, B+: %.3f, S: %.3f, d: %.3f, Delta: %.5f\n", A_err, B_minus_err, B_plus_err, S_err, d_err, Delta_err);
-% 
-% %% Try RKV6(5) Discretization
-% N_sub = 20;
-% [A_k_rk65, B_k_plus_rk65, B_k_minus_rk65, S_k_rk65, d_k_rk65, Delta_rk65] = discretize_error_dynamics_FOH_RKV65(f, A, B, S, N, tspan, test.x, test.u, test.p, N_sub);
-% 
-% A_err = sum(pagenorm(A_k_rk65 - A_k), "all");
-% B_minus_err = sum(pagenorm(B_k_minus_rk65 - B_k_minus), "all");
-% B_plus_err = sum(pagenorm(B_k_plus_rk65 - B_k_plus), "all");
-% S_err = sum(pagenorm(S_k_rk65 - S_k), "all");
-% d_err = sum(pagenorm(d_k_rk65 - d_k), "all");
-% Delta_err = sum(vecnorm(Delta_rk65 - Delta_disc));
-% fprintf("A: %.3f, B-: %.3f, B+: %.3f, S: %.3f, d: %.3f, Delta: %.10f\n", A_err, B_minus_err, B_plus_err, S_err, d_err, Delta_err);
-% 
-% %% Try RKV8(7) Discretization
-% N_sub = 20;
-% [A_k_rk87, B_k_plus_rk87, B_k_minus_rk87, S_k_rk87, d_k_rk87, Delta_rk87] = discretize_error_dynamics_FOH_RKV87(f, A, B, S, N, tspan, test.x, test.u, test.p, N_sub);
-% 
-% A_err = sum(pagenorm(A_k_rk87 - A_k), "all");
-% B_minus_err = sum(pagenorm(B_k_minus_rk87 - B_k_minus), "all");
-% B_plus_err = sum(pagenorm(B_k_plus_rk87 - B_k_plus), "all");
-% S_err = sum(pagenorm(S_k_rk87 - S_k), "all");
-% d_err = sum(pagenorm(d_k_rk87 - d_k), "all");
-% Delta_err = sum(vecnorm(Delta_rk87 - Delta_disc));
-% fprintf("A: %.3f, B-: %.3f, B+: %.3f, S: %.3f, d: %.3f, Delta: %.10f\n", A_err, B_minus_err, B_plus_err, S_err, d_err, Delta_err);
-% 
-
 %%
 if ~ptr_sol.converged
     ptr_sol.converged_i = ptr_ops.iter_max;
@@ -303,6 +228,9 @@ dV_rocket_equation = Isp * g_0 * log(x_0(7) / x(7, end)) / 1000 / v_star;
 
 rel_dV_error_perc_rocket_equation = (dV_cont - dV_rocket_equation) / dV_cont * 100
 
+low_thrust_over_lambert = dV_rocket_equation / dV_best
+
+
 %% Helper
 function [v_guess] = v_circ(r_guess, nu_guess, mu)
     r = vecnorm(r_guess, 2, 1);
@@ -331,7 +259,7 @@ function [v1_best, v2_best, dV_best, ToF_best, N_best] = best_lambert(x_1, x_2, 
     Q = numel(ToF) * 2;
     r1vec = repmat(x_1(1:3), 1, Q);
     r2vec = repmat(x_2(1:3), 1, Q);
-    direction = [ones([Q, 1]); -ones(Q, 1)];
+    direction = [ones([Q / 2, 1]); -ones(Q / 2, 1)]; % Probably just want positive direction, negative is backwards
 
     N_max = max(N);
 

@@ -26,18 +26,14 @@ function [ cost, minf ] = netSimplex( A, D, G )
     [b,c,M,f,pi] = auxiNet( A,G,D ); %   
     cc = checkCycle(b);             %find circuits in the network
     
-    coder.varsize("T", [97, 1], [1, 0]);
-    coder.varsize("L", [432, 1], [1, 0]);
-    coder.varsize("U", [45, 1], [1, 0]);
-
     z = b - f + f.';                %capacity upper bound matrix    
     T = find(c==M);                 %the arcs in the spanning tree 
     L = setxor(find(b),T);          %the nontree arcs whose flow = 0;    
     U = [];                         %the nontree arcs that are saturated
-    % costs = [];
+    costs = [];
 
-    %Ts = [];
-    % Ls = [];
+    Ts = [];
+    Ls = [];
 
     %Simplex Pivot:
     [L,U,ee,isU] = selArc(L,pi,c,U);   %select a feasible entering arc
@@ -46,21 +42,21 @@ function [ cost, minf ] = netSimplex( A, D, G )
         z = adjustCapacity(b,f,cc,T);   %adjust the capacity upper bound matrix 
         pi = pt(T,c);                   %Compute Node Potentials
         [L,U,ee,isU] = selArc(L,pi,c,U);%select a feasible entering arc 
-        %Ts(end + 1) = numel(U);
-        % Ls(end + 1) = numel(L);
-        % 
-        % if any(admissible(f) ~= 0, "all")
-        %     %fprintf("Feasible solution!\n")
-        %     minf = admissible(f);
-        %     ttt = find(minf); 
-        %     costs(end + 1) = sum(minf(ttt).*G(ttt));
-        %     %break;
-        % end
+        Ts(end + 1) = numel(U);
+        Ls(end + 1) = numel(L);
+
+        if any(admissible(f) ~= 0, "all")
+            %fprintf("Feasible solution!\n")
+            minf = admissible(f);
+            ttt = find(minf); 
+            costs(end + 1) = sum(minf(ttt).*G(ttt));
+            %break;
+        end
     end
     minf = admissible(f);
-    % 
-    % figure
-    % plot(costs)
+
+    figure
+    plot(costs)
 
     %computes the value of the cost of the given solution
     ttt = find(minf); 

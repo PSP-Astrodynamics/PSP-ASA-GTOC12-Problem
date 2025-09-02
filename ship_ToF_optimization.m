@@ -68,19 +68,64 @@ function [dV] = dV_func(ToFs, v1, v2, ast_cart_funcs, i)
     x1_cart = ast_cart_funcs{i}(sum(ToFs(1 : (i - 1))));
     x2_cart = ast_cart_funcs{i + 1}(sum(ToFs(1 : i)));
     
-    dV = sqrt(sum((x1_cart(4 : 6) - v1) .^ 2)) + sqrt(sum((x2_cart(4 : 6) - v2) .^ 2));
+    %dV = sqrt(sum((x1_cart(4 : 6) - v1) .^ 2)) + sqrt(sum((x2_cart(4 : 6) - v2) .^ 2));
+    dV = norm(x1_cart(4 : 6) - v1) + norm(x2_cart(4 : 6) - v2);
 end
 
-function [jac_func] = dV_jacobian(ToFs, v1, v2, ast_cart_funcs, i)
-
+function [dV] = dV_func_differentiable(v1, v2, vb1, vb2)
+    dV = sqrt(sum((vb1 - v1) .^ 2)) + sqrt(sum((vb2 - v2) .^ 2));
 end
 
-function [hess_func] = dV_hessian()
+dV_jacobian(ToF_guess, [1;1;1], [2;2;2], ast_cart_funcs, 2, n_seg)
 
+function [ddVdvvb, dzdToFs, dvbdToFs] = dV_jacobian(ToFs, v1, v2, ast_cart_funcs, i, n_seg)
+    x1_cart = ast_cart_funcs{i}(sum(ToFs(1 : (i - 1))));
+    x2_cart = ast_cart_funcs{i + 1}(sum(ToFs(1 : i)));
+
+    ToF_sym = sym("ToF", [n_seg, 1]);
+    m0_sym = sym("m0", [1, 1]);
+    v1_sym = sym("v1", [3, 1]);
+    v2_sym = sym("v2", [3, 1]);
+    vb1_sym = sym("vb1", [3, 1]);
+    vb2_sym = sym("vb2", [3, 1]);
+
+    ddVdp = jacobian(dV_func_differentiable(v1_sym, v2_sym, vb1_sym, vb2_sym), [v1_sym; v2_sym]);
+    ddVdvb = jacobian(dV_func_differentiable(v1_sym, v2_sym, vb1_sym, vb2_sym), [vb1_sym; vb2_sym]);
+    
+    ddVdvvb = [ddVdp; ddVdvb];
+
+    d2dVdv2 = hessian(dV_func_differentiable(v1_sym, v2_sym, vb1_sym, vb2_sym), [v1_sym; v2_sym; vb1_sym; vb2_sym]);
+
+
+    dvbdT = [accel(x1_cart(1 : 3)); accel(x2_cart(1 : 3))];
+    dTdToF_im1 = T_der_wrt_ToF(n_seg, i - 1);
+    dTdToF_i = T_der_wrt_ToF(n_seg, i);
+
+
+    dvbdToFs = dvbdT .* [dTdToF_im1; dTdToF_i];
+
+    dzdToFs = [x1_cart(4 : 6) * dTdToF_im1; x2_cart(4 : 6) * dTdToF_i; dToFdToFs];
+end
+
+% function [jac_func] = dV_jacobian(ToFs, v1, v2, ast_cart_funcs, i)
+%     x1_cart = ast_cart_funcs{i}(sum(ToFs(1 : (i - 1))));
+%     x2_cart = ast_cart_funcs{i + 1}(sum(ToFs(1 : i)));
+% 
+%     ddV1dv1 = -(x1_cart(4 : 6) - v1)' / norm((x1_cart(4 : 6) - v1));
+%     ddV1dT = (x1_cart(4 : 6) - v1)' / norm((x1_cart(4 : 6) - v1)) * accel(x1_cart(1 : 3));
+% 
+%     ddV2dv2 = -(x2_cart(4 : 6) - v2)' / norm((x2_cart(4 : 6) - v2));
+%     ddV2dT = (x2_cart(4 : 6) - v2)' / norm((x2_cart(4 : 6) - v2)) * accel(x2_cart(1 : 3));
+% 
+%     jac_func = @() [ddV1dv1, ddV2dv2, ddV1dT + ddV2dT];
+% end
+
+function [hess_func] = dV_hessian() 
+    
 end
 
 for i = 1 : n_seg
-    jac(i) = {@(ToF, v1, v2) dV_jacobian(ToF, v1, v2)};
+    ddvdp(i) = {@(ToF, v1, v2) dV_jacobian(ToF, v1, v2)};
     % 
     % hess_func = matlabFunction(hessian(dV_func(ToF_sym, v1_sym, v2_sym, ast_cart_funcs, i)), "Vars", [{ToF_sym}; {v1_sym}; {v2_sym}]);
     % hess(i) = {@(t) hess_func()};
@@ -90,13 +135,21 @@ end
 v1_assist = 0; % For launch vehicle boost when leaving Earth
 v2_assist = 0; % For acceptable relative velocity when coming back to Earth
 N_max = 10; % Max revolutions for an orbit
-[v1, v2, dV, N, dpdz, d2dpdz2] = best_lambert_with_sensitivities(x1_guess, x2_guess, ToF_guess, N_max, v1_assist, v2_assist); %[output:6dae74e2] %[output:9b83e6a0] %[output:20f1a42d]
+[v1, v2, dV, N, dpdz, d2pdz2] = best_lambert_with_sensitivities(x1_guess, x2_guess, ToF_guess, N_max, v1_assist, v2_assist);
 
-% Find dV using low thtrust
+% Find dV using low thrust
 %Asteroid2Asteroid_lowthrust();
+[ddVdvvb, d2dVdvvb2, dzdToFs, dvbdToFs] = dV_jacobian(ToF_guess, v1, v2, ast_cart_funcs, i, n_seg)
+dvdToFs = dpdz * dzdToFs;
+dvvbdToFs = [dvdToFs; dvbdToFs];
 
+delta_ToFs = ;
+
+dV_approx = dV + ddVdvvb * dvvbdToFs * delta_ToFs + delta_ToFs' * dvvbdToFs' * d2dVdvvb2 * dvvbdToFs * delta_ToFs;
+dV_approx_i = dV + 
+%%
 % Get/create Lamb dV -> mass surrogate
-
+simple_max_dV_surrogate(ToF_guess(1) * 0.5, 0.8)
 %%
 dV_bar = dV;
 dT = 0.1;
@@ -276,9 +329,14 @@ function [jac] = jacobian_func(f, p, wrt)
     end
 end
 
+function [a] = accel(r)
+    mu = 1;
+    a = -mu / sqrt(r(1) ^ 2 + r(2) ^ 2 + r(3) ^ 2) ^ 3 * r;
+end
 
-function [dpdz] = dp_wrt_z()
-    
+function [dTdToF_i] = T_der_wrt_ToF(n_seg, i)
+    dTdToF = tril(ones(n_seg));
+    dTdToF_i = dTdToF(i, :);
 end
 
 function [ddvdz] = dV_der_wrt_z(ddvdp, dpdz)
@@ -296,20 +354,37 @@ function [dV_approx] = lambert_second_order_approx(dV_bar, delz, dpdz, d2pdz2, d
     dV_approx = dV_bar + ddvdz * delz + 1/2 * delz' * d2dvdz2 * delz;
 end
 
+
+function [dV_max_allowable] = simple_max_dV_surrogate(tf, m0, options)
+    arguments
+        tf
+        m0
+        options.multiplier = 2
+    end
+    AU = 1.49579151285e8;
+    mu_star = 1.32712440018e11; % [km3 / s2]
+    l_star = AU; % [km] one AU
+    m_star = 3000; % [kg] - max initial ship mass
+    a_star = mu_star / l_star ^ 2; % [km / s2]
+    t_star = sqrt(l_star ^ 3 / mu_star);
+    v_star = sqrt(mu_star/l_star);
+
+    Isp = 4000; % [s]
+    g_0 = 9.80665; % [m / s2]
+    alpha = 1 / (Isp * g_0); % [s / m]
+    u_max = 0.6; % [N]
+    
+    mf = m0 - alpha * u_max * tf * t_star / m_star;
+    dV_max = Isp * g_0 * log(m0 / mf) / 1000 / v_star;
+
+    dV_max_allowable = dV_max * options.multiplier;
+end
+
 %[appendix]{"version":"1.0"}
 %---
 %[metadata:view]
 %   data: {"layout":"inline"}
 %---
 %[output:2115606f]
-%   data: {"dataType":"matrix","outputData":{"columns":6,"name":"route","rows":1,"type":"double","value":[["33","1","20","33","20","1"]]}}
-%---
-%[output:6dae74e2]
-%   data: {"dataType":"textualVariable","outputData":{"name":"coefFilePath","value":"'C:\\Users\\thatf\\OneDrive\\Documents\\ASA\\PSP-ASA-GTOC12-Problem\\LambertSolvers\\ivLamV2p41_738416p65617\\matlabInterface\\lib\\ivLamTree_20210202_160219_i2d8.bin'"}}
-%---
-%[output:9b83e6a0]
-%   data: {"dataType":"textualVariable","outputData":{"name":"upToNmaxForStoringDetails","value":"-1"}}
-%---
-%[output:20f1a42d]
-%   data: {"dataType":"text","outputData":{"text":"\nivLam routines successfully initialized, see log file for details, no limit on number of revolutions\ncoef path and dll path appear correct, data loaded ok!\nivLam data successfully unloaded, see log file for details\nivLamDLL library succesfully unloaded\n","truncated":false}}
+%   data: {"dataType":"matrix","outputData":{"columns":6,"name":"route","rows":1,"type":"double","value":[["20","33","1","1","20","33"]]}}
 %---

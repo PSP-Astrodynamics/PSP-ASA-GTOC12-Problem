@@ -16,7 +16,7 @@ mu = 1;
 mu_dim = mu_star;
 m0 = 3000 / m_star;
 m_min = 500 / m_star; % dependent on a lot
-tf = 1.5 * year_to_sec / t_star;
+tf = 3.1 * year_to_sec / t_star;
 N = 25;
 
 %% Calculate max dV possible for continuous max thrust (ignoring external forces)
@@ -38,12 +38,23 @@ M_earth = @(t) sqrt(mu / a_earth^3) * t + M_earth0;
 E_earth = @(t) mean_to_eccentric_anomaly(M_earth(t), e_earth);
 nu_earth = @(t) rad2deg(eccentric_to_true_anomaly(E_earth(t), e_earth));
 
+x_kep_earth = [a_earth; e_earth; inc_earth; Omega_earth; omega_earth; M_earth0];
+
 %% Asteroid data
 y=importdata('GTOC12_Asteroids_Data.txt');
 
-[v, i] = max(y.data(:, 3))
+multiplier = 2;
 
-AST = 42069;%i; % Asteroid ID in range 1:60000
+%[v, i] = max(y.data(:, 3))
+% 
+% scaler = [0, 0, pi/180, pi/180, pi/180, pi/180];
+% offset = 2;
+% M_guess = @(a_ast) tf ./ ((2 * pi *sqrt(a_earth ^ 3 / mu) + 2 * pi * sqrt(a_ast .^ 3 / mu)) / 2) * 2 * pi;
+% [~, i] = min(vecnorm(scaler' .* ([x_kep_earth(1:5); rad2deg(M_earth0)] - y.data(:, offset + (1 : 6))' - [zeros(5, 60000); M_guess(y.data(:, offset + 1))']), 2, 1));
+% AST = i;
+load_lambert()
+
+for AST = 215 : 215
 
 offset = 2;
 a_ast = y.data(AST, offset + 1);
@@ -73,7 +84,7 @@ tspan = [0, tf];
 t_k = linspace(tspan(1), tspan(2), N);
 delta_t = t_k(2) - t_k(1);
 
-u_hold = "FOH";
+u_hold = "ZOH";
 Nu = (u_hold == "ZOH") * (N - 1) + (u_hold == "FOH") * N;
 
 parser = "CVX";
@@ -83,11 +94,11 @@ np = 3;
 
 initial_guess = "Lambert"; % "straight line" or "Lambert"
 
-ptr_ops.iter_max = 10;
+ptr_ops.iter_max = 20;
 ptr_ops.iter_min = 2;
 ptr_ops.Delta_min = 5e-3;
 ptr_ops.w_vc = 1e2;
-ptr_ops.w_tr = ones(1, Nu) * 5e-4;
+ptr_ops.w_tr = ones(1, Nu) * 1e-3;
 ptr_ops.w_tr_p = 1e-4 * ones(1, np);
 ptr_ops.update_w_tr = false;
 ptr_ops.delta_tol = 1e-2;
@@ -109,7 +120,6 @@ departure_velocity_constraint = {1, @(t, x, u, p) norm(p(1:3)) - v_max_nd};
 convex_constraints = {min_mass_constraint, max_thrust_constraint, departure_velocity_constraint};
 
 initial_bc = @(x, p) [x(1:3) - x_0(1:3); x(4:6) - p(1:3) - x_0(4:6); x(7) - m0];
-terminal_bc = @(x, p, x_ref, p_ref) [x(1:6) - x_f; 0];
 
 if u_hold == "ZOH"
     min_fuel_objective = @(x, u, p, x_ref, u_ref, p_ref) alpha / m_star * t_star * sum(norms(u, 2, 1)) * delta_t;
@@ -133,14 +143,41 @@ if initial_guess == "straight line"
     guess.u = interp1(tspan, ones(3, 2)' * 1e-5, t_k(1:Nu))';
     guess.p = [0; 0; 0];
 elseif initial_guess == "Lambert"
-    tofs = [0.5 : 0.1 : 5]' * year_to_sec / t_star;
+    tofs = [0.6 : 0.01 : 3.2]' * year_to_sec / t_star;
     P_earth = 2 * pi *sqrt(a_earth ^ 3 / mu);
     P_ast = 2 * pi * sqrt(a_ast ^ 3 / mu);
     N_guess = tf / ((P_earth + P_ast) / 2);
     for i = 1 : numel(tofs)
         x_f_tofs(:, i) = x_cartesian_ast(tofs(i));
     end
-    [v1_best, v2_best, dV_best, ToF_best, N_best, direction_best] = best_lambert(repmat(x_0(1:6), 1, numel(tofs)), x_f_tofs, tofs, [floor(N_guess), ceil(N_guess)], 6 / v_star, 0);
+    %[v1_best, v2_best, dV_best, ToF_best, N_best, direction_best] = best_lambert(repmat(x_0(1:6), 1, numel(tofs)), x_f_tofs, tofs, [floor(N_guess), ceil(N_guess)], 6 / v_star, 0);
+    [v1_lamb, v2_lamb, dV_lamb, N_lamb] = best_lambert_thruN(repmat(x_0(1:6), 1, numel(tofs)), x_f_tofs, tofs, ceil(N_guess), 6 / v_star, 0);
+
+   
+    mf = m0 - alpha * u_max * tofs * t_star / m_star;
+    dV_max = Isp * g_0 * log(m0 ./ mf) / 1000 / v_star;
+
+
+    [~, best_i] = min(dV_lamb * multiplier - dV_max);
+    % if dV_lamb(best_i) * multiplier < dV_max(best_i)
+    %     best_i = find(dV_lamb * multiplier < dV_max, 1, "first");
+    % end
+    dV_best = dV_lamb(best_i);
+    v1_best = v1_lamb(:, best_i);
+    v2_best = v2_lamb(:, best_i);
+    N_best = N_lamb(best_i);
+    ToF_best = tofs(best_i);
+
+    figure
+    plot(tofs * t_star / year_to_sec, dV_lamb * v_star * multiplier); hold on
+    plot(tofs * t_star / year_to_sec, dV_max * v_star)
+    plot(tofs * t_star / year_to_sec, dV_lamb * multiplier - dV_max)
+    xline(ToF_best * t_star / year_to_sec); hold off
+    title("Lambert delta V vs ToF")
+    xlabel("Time of Flight [yr]")
+    ylabel("Lambert Delta V [km / s]")
+    grid on
+
     tf = ToF_best;
     x_f = x_cartesian_ast(tf);
 
@@ -148,11 +185,17 @@ elseif initial_guess == "Lambert"
     t_k = linspace(tspan(1), tspan(2), N);
     delta_t = t_k(2) - t_k(1);
 
-    if dV_best > dV_max
-        warning("WARNING: Lambert delta V %.1f%% greater than estimated max low thrust delta V", (dV_best - dV_max) / dV_max * 100)
+    if dV_best * multiplier > dV_max(best_i)
+        warning("WARNING: Lambert delta V %.1f%% greater than estimated max low thrust delta V", (dV_best - dV_max(best_i)) / dV_max(best_i) * 100)
+        %error("WARNING: Lambert delta V %.1f%% greater than estimated max low thrust delta V", (dV_best - dV_max) / dV_max * 100)
+        %continue
+    else 
+        fprintf("Candidate: %g ID with %.1f%% less than estimated max low thrust delta V \n", AST, (dV_max(best_i) - dV_best) / dV_max(best_i) * 100)
+        %continue
     end
 
-    guess = lambert_initial_guess(x_0(1:6), x_f_tofs(:, tofs == ToF_best), v1_best, v2_best, N_best, t_k, u_max, alpha, t_star, m_star, Isp, g_0, v_star, 6, 0, m0);
+
+    guess = lambert_initial_guess(x_0(1:6), x_f_tofs(:, best_i), v1_best, v2_best, N_best, t_k, u_max, alpha, t_star, m_star, Isp, g_0, v_star, 6, 0, m0);
     guess.p = 6 / v_star * guess.u(:, 1) / norm(guess.u(:, 1));
     guess.u = guess.u * 0 + 1e-5;
     if u_hold == "FOH"
@@ -163,6 +206,12 @@ elseif initial_guess == "previous solution"
     guess.u = ptr_sol_prev.u(:, :, ptr_sol.converged_i);
     guess.p = ptr_sol_prev.p(1:3, ptr_sol.converged_i);
 end
+end
+%%
+
+unload_lambert()
+
+terminal_bc = @(x, p, x_ref, p_ref) [x(1:6) - x_f; 0];
 
 problem = DeterministicProblem(x_0, x_f, N, u_hold, tf, f, guess, convex_constraints, min_fuel_objective, scale = scale, initial_bc = initial_bc, terminal_bc = terminal_bc, integration_tolerance = 1e-12, discretization_method = "error", N_sub = 1);
 
@@ -245,6 +294,8 @@ dV_rocket_equation = Isp * g_0 * log(x_0(7) / x(7, end)) / 1000 / v_star;
 
 rel_dV_error_perc_rocket_equation = (dV_cont - dV_rocket_equation) / dV_cont * 100
 
+low_thrust_over_lambert = dV_rocket_equation / dV_best
+
 %% Helper
 function [v_guess] = v_circ(r_guess, nu_guess, mu)
     r = vecnorm(r_guess, 2, 1);
@@ -277,7 +328,7 @@ function [v1_best, v2_best, dV_best, ToF_best, N_best, direction_best] = best_la
 
     N_max = max(N);
 
-    [v1vec,v2vec,uptoNhave,infoReturnStatus,infoHalfRevStatus] = ivLam_thruN_multipleInputDLL(Q, r1vec, r2vec, repmat(ToF, 2, 1), direction, N_max);
+    [v1vec, v2vec, infoReturnStatus, infoHalfRevStatus] = ivLam_thruN_multipleInputDLL(Q, r1vec, r2vec, repmat(ToF, 2, 1), direction, N_max);
 
     %in order to retrieve solutions, we need the Ni2col() function to get the correct column
             
@@ -318,7 +369,7 @@ function [v1_best, v2_best, dV_best, ToF_best, N_best, direction_best] = best_la
     % v1_best, v2_best, dV_best, ToF_best, N_best
 
     % Double check everything was extracted correctly
-    %%[v1vecA,v2vecA,infoReturnStatus,infoHalfRevStatus,detailsVec] = ivLam_singleN_withDetailsDLL(x_1(1:3, mod(q_best - 1, numel(ToF)) + 1), x_2(1:3, mod(q_best - 1, numel(ToF)) + 1), ToF_best, direction(q_best), N_best);
+    [v1vecA,v2vecA,infoReturnStatus,infoHalfRevStatus,detailsVec] = ivLam_singleN_withDetailsDLL(x_1(1:3, mod(q_best - 1, numel(ToF)) + 1), x_2(1:3, mod(q_best - 1, numel(ToF)) + 1), ToF_best, direction(q_best), N_best);
 
     %unload the dll and clear memory from the lambert routines
     iflag= ivLam_unloadDataDLL();
@@ -394,4 +445,22 @@ function [guess] = lambert_initial_guess(x_1, x_2, v_1_trans, v_2_trans, N_rev, 
     % Package guess
     guess.x = [transfer_cartesian; m_guess];
     guess.u = u_guess + 1e-5;
+end
+
+function [] = load_lambert()
+    dllDirectory_Path = convertStringsToChars(string(cd) + "\LambertSolvers\ivLamV2p41_738416p65617\matlabInterface\lib\");  %at distribution in this file near the driver, otherwise change here.
+    
+    addpath(dllDirectory_Path) %add the path where the .dll resides
+    
+    %load the dll and initialize the lambert routines
+    iflag=ivLam_initializeDLL(dllDirectory_Path);
+    if(iflag~=0)
+        return
+    else
+        disp('coef path and dll path appear correct, data loaded ok!')
+    end
+end
+
+function [] = unload_lambert()
+    iflag= ivLam_unloadDataDLL();
 end
