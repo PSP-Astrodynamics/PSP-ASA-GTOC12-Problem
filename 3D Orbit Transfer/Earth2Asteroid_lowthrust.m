@@ -54,7 +54,8 @@ multiplier = 2;
 % AST = i;
 load_lambert()
 
-for AST = 215 : 215
+guesses = {};
+for AST = 1 : 1
 
 offset = 2;
 a_ast = y.data(AST, offset + 1);
@@ -94,7 +95,7 @@ np = 3;
 
 initial_guess = "Lambert"; % "straight line" or "Lambert"
 
-ptr_ops.iter_max = 20;
+ptr_ops.iter_max = 30;
 ptr_ops.iter_min = 2;
 ptr_ops.Delta_min = 5e-3;
 ptr_ops.w_vc = 1e2;
@@ -143,13 +144,13 @@ if initial_guess == "straight line"
     guess.u = interp1(tspan, ones(3, 2)' * 1e-5, t_k(1:Nu))';
     guess.p = [0; 0; 0];
 elseif initial_guess == "Lambert"
-    tofs = [0.6 : 0.01 : 3.2]' * year_to_sec / t_star;
+    tofs = [1 : 0.01 : 8]' * year_to_sec / t_star;
     P_earth = 2 * pi *sqrt(a_earth ^ 3 / mu);
     P_ast = 2 * pi * sqrt(a_ast ^ 3 / mu);
     N_guess = tf / ((P_earth + P_ast) / 2);
-    for i = 1 : numel(tofs)
-        x_f_tofs(:, i) = x_cartesian_ast(tofs(i));
-    end
+    % for i = 1 : numel(tofs)
+    %     x_f_tofs(:, i) = x_cartesian_ast(tofs(i));
+    % end
     %[v1_best, v2_best, dV_best, ToF_best, N_best, direction_best] = best_lambert(repmat(x_0(1:6), 1, numel(tofs)), x_f_tofs, tofs, [floor(N_guess), ceil(N_guess)], 6 / v_star, 0);
     [v1_lamb, v2_lamb, dV_lamb, N_lamb] = best_lambert_thruN(repmat(x_0(1:6), 1, numel(tofs)), x_f_tofs, tofs, ceil(N_guess), 6 / v_star, 0);
 
@@ -159,13 +160,13 @@ elseif initial_guess == "Lambert"
 
 
     [~, best_i] = min(dV_lamb * multiplier - dV_max);
-    % if dV_lamb(best_i) * multiplier < dV_max(best_i)
-    %     best_i = find(dV_lamb * multiplier < dV_max, 1, "first");
-    % end
+    if dV_lamb(best_i) * multiplier < dV_max(best_i)
+        best_i = find(dV_lamb * multiplier < dV_max, 1, "first");
+    end
     dV_best = dV_lamb(best_i);
     v1_best = v1_lamb(:, best_i);
     v2_best = v2_lamb(:, best_i);
-    N_best = N_lamb(best_i);
+    N_best = N_lamb(best_i) + 1;
     ToF_best = tofs(best_i);
 
     figure
@@ -201,6 +202,7 @@ elseif initial_guess == "Lambert"
     if u_hold == "FOH"
         guess.u(:, end + 1) = [0;0;0] + 1e-5;
     end
+    guesses{end + 1} = guess;
 elseif initial_guess == "previous solution"
     guess.x = ptr_sol_prev.x(:, :, ptr_sol.converged_i);
     guess.u = ptr_sol_prev.u(:, :, ptr_sol.converged_i);
@@ -239,12 +241,11 @@ v_cont_sol = x_cont_sol(4:6, :);
 t_plot = linspace(0, tf, 100);
 x_cartesian_earth_plot = zeros([6, numel(t_plot)]);
 x_cartesian_ast_plot = zeros([6, numel(t_plot)]);
-for k = 1:numel(t_plot)
+for k = 1 : numel(t_plot)
     x_cartesian_earth_plot(:, k) = x_cartesian_earth(t_plot(k));
     x_cartesian_ast_plot(:, k) = x_cartesian_ast(t_plot(k));
 end
-
-
+%%
 [t_cont_sol, x_cont_sol, u_cont_sol] = problem.cont_prop(ptr_sol.u(:, :, i), ptr_sol.p(:, i), x0 = x_0_opt);
 
 % 
@@ -267,6 +268,7 @@ scatter3(x_cartesian_ast_plot(1, end), x_cartesian_ast_plot(2, end), x_cartesian
 title('Optimal Transfer Trajectory')
 xlabel('x (AU)'); ylabel('y (AU)')
 legend('Spacecraft', "", "Thrust", "Launch Velocity", 'Guess', "", 'Earth', "", 'Asteroid', "", "Start", "End", 'Location', 'northwest'); axis equal; grid on
+
 
 %%
 figure

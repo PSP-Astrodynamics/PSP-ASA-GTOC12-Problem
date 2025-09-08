@@ -197,7 +197,7 @@ problem.param_dict["u_ref"].value = u_ref
 #t1 = time.time()
 #print('\nCVXPY QOCO\nSolve time: %.3f ms with %.3f' % (1000 * (t1 - t0), val)) # don't know why QOCO is so slow for this... :(
 
-
+#CVXPyGEN/LowThrustGTOC12/
 #cpg.generate_code(problem, code_dir='Ast2Ast_fixed_FOH_PTR_ECOS', solver = "ECOS")
 #cpg.generate_code(problem, code_dir='Ast2Ast_fixed_FOH_PTR_QOCO', solver = "QOCO")
 #cpg.generate_code(problem, code_dir='Ast2Ast_fixed_FOH_PTR_SCS', solver = "SCS")
@@ -211,7 +211,7 @@ problem.register_solve('cpg', cpg_solve)
 t0 = time.time()
 val = problem.solve(method='cpg')
 t1 = time.time()
-print('\ncvxpy ecos_gen \nsolve time: %.3f ms with %.3f and %.5f ms solve' % (1000 * (t1 - t0), val, 1000 * problem.solution.attr["solve_time"]))
+#print('\ncvxpy ecos_gen \nsolve time: %.3f ms with %.3f and %.5f ms solve' % (1000 * (t1 - t0), val, 1000 * problem.solution.attr["solve_time"]))
 
 # Extract Solution
 X_sol = problem.var_dict['X'].value
@@ -235,4 +235,3 @@ solve_status = problem.status
 #print(problem.var_dict['v_N'].value)
 #print(virtual_control_cost_func_np(w_vc, problem.var_dict['V'].value, problem.var_dict['v_0'].value, problem.var_dict['v_N'].value))
 #print(trust_region_cost_func(w_tr, problem.var_dict['eta'].value))
-a = 1;

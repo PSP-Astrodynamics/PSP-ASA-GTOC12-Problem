@@ -6,7 +6,7 @@ function [ptr_sol] = ptr(prob, ptr_ops, parser)
 arguments
     prob 
     ptr_ops 
-    parser string {mustBeMember(parser, ["CVX", "CVXPY"])} = "CVX"
+    parser string {mustBeMember(parser, ["CVX", "CVXPY", "CVXPyGEN"])} = "CVX"
 end
 
 x_ref = zeros([prob.n.x, prob.N, ptr_ops.iter_max + 1]);
@@ -41,6 +41,8 @@ for i = 1:(ptr_ops.iter_max)
 
             %figure
             %comparison_plot_3DoF_trajectory({x_ref(:, :, i + 1), x_ref_CVX}, ["CVXPY", "CVX"], prob.params(4))
+        elseif parser == "CVXPyGEN"
+            [x_ref(:, :, i + 1), u_ref(:, :, i + 1), sol_info, problem] = solve_ptr_convex_subproblem_no_p_CVXPyGEN(prob, ptr_ops, x_ref(:, :, i), u_ref(:, :, i), problem);
         end
     else
         [x_ref(:, :, i + 1), u_ref(:, :, i + 1), p_ref(:, i + 1), sol_info] = solve_ptr_convex_subproblem(prob, ptr_ops, x_ref(:, :, i), u_ref(:, :, i), p_ref(:, i));

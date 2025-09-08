@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<coderProject client="MatlabCoder" containerVersion="1" createdBy="R2025a" modifiedBy="R2025a">
+  <layers>
+    <layer id="core" version="R2025a">
+      <parts>
+        <part role="testRepository">
+          <MF0 packageUris="http://schema.mathworks.com/mf0/coderapp_core_proj_dm/R2025a http://schema.mathworks.com/mf0/coderapp_core_rt_dm/R2022b http://schema.mathworks.com/mf0/coderapp_gpucoder_proj_dm/R2025a http://schema.mathworks.com/mf0/coderapp_gpucoder_rt_dm/R2022b http://schema.mathworks.com/mf0/coderapp_matlabcoder_proj_dm/R2025a http://schema.mathworks.com/mf0/coderapp_matlabcoder_rt_dm/R2022b http://schema.mathworks.com/mf0/coderapp_types_project_datamodel/R2025a http://schema.mathworks.com/mf0/coderapp_types_runtime_datamodel/R2022b" version="1.1">
+            <coderapp.internal.core.mfz.TestRepositoryState id="1" type="coderapp.internal.core.mfz.TestRepositoryState"/>
+          </MF0>
+        </part>
+      </parts>
+    </layer>
+    <layer id="interface" version="R2025a">
+      <parts>
+        <part role="mainInterface">
+          <MF0 packageUris="http://schema.mathworks.com/mf0/coderapp_config_datamodel/R2021a.001 http://schema.mathworks.com/mf0/coderapp_core_proj_dm/R2025a http://schema.mathworks.com/mf0/coderapp_core_rt_dm/R2022b http://schema.mathworks.com/mf0/coderapp_form_datamodel/R2020a http://schema.mathworks.com/mf0/coderapp_gpucoder_proj_dm/R2025a http://schema.mathworks.com/mf0/coderapp_gpucoder_rt_dm/R2022b http://schema.mathworks.com/mf0/coderapp_matlabcoder_proj_dm/R2025a http://schema.mathworks.com/mf0/coderapp_matlabcoder_rt_dm/R2022b http://schema.mathworks.com/mf0/coderapp_types_project_datamodel/R2025a http://schema.mathworks.com/mf0/coderapp_types_runtime_datamodel/R2022b http://schema.mathworks.com/mf0/coderapp_utils_datamodel/R2020a" version="1.1">
+            <coderapp.internal.interface.project.Interface id="1" type="coderapp.internal.interface.project.Interface">
+              <EntryPoints id="2" type="coderapp.internal.interface.project.EntryPointFunction">
+                <Signatures id="3" type="coderapp.internal.interface.project.FunctionSignature">
+                  <Inputs id="4" type="coderapp.internal.interface.project.Input">
+                    <Name>N</Name>
+                    <Type id="5" type="coderapp.internal.codertype.PrimitiveType"/>
+                  </Inputs>
+                  <Inputs id="6" type="coderapp.internal.interface.project.Input">
+                    <Name>tspan</Name>
+                    <Type id="7" type="coderapp.internal.codertype.PrimitiveType"/>
+                  </Inputs>
+                  <Inputs id="8" type="coderapp.internal.interface.project.Input">
+                    <Name>x_ref</Name>
+                    <Type id="9" type="coderapp.internal.codertype.PrimitiveType"/>
+                  </Inputs>
+                  <Inputs id="10" type="coderapp.internal.interface.project.Input">
+                    <Name>u_ref</Name>
+                    <Type id="11" type="coderapp.internal.codertype.PrimitiveType"/>
+                  </Inputs>
+                  <Inputs id="12" type="coderapp.internal.interface.project.Input">
+                    <Name>s_ref</Name>
+                    <Type id="13" type="coderapp.internal.codertype.PrimitiveType"/>
+                  </Inputs>
+                  <NumOutputs>6</NumOutputs>
+                </Signatures>
+                <File type="coderapp.internal.util.mfz.FileSpec">
+                  <Path>../Asteroid Mining/discretize_error_dynamics_FOH_kepler_fixedtf.m</Path>
+                </File>
+                <Name>discretize_error_dynamics_FOH_kepler_fixedtf</Name>
+              </EntryPoints>
+              <SizeConstraints id="14" type="coderapp.internal.interface.project.SizeConstraints">
+                <Value type="coderapp.internal.interface.project.SizeConstraintsValue"/>
+              </SizeConstraints>
+              <Types id="15" type="coderapp.internal.codertype.TypeStore">
+                <Types id="5" type="coderapp.internal.codertype.PrimitiveType">
+                  <ClassName>double</ClassName>
+                  <Size type="coderapp.internal.codertype.Dimension"/>
+                  <Size type="coderapp.internal.codertype.Dimension"/>
+                </Types>
+                <Types id="7" type="coderapp.internal.codertype.PrimitiveType">
+                  <ClassName>double</ClassName>
+                  <Size type="coderapp.internal.codertype.Dimension"/>
+                  <Size type="coderapp.internal.codertype.Dimension">
+                    <Length>2</Length>
+                  </Size>
+                </Types>
+                <Types id="9" type="coderapp.internal.codertype.PrimitiveType">
+                  <ClassName>double</ClassName>
+                  <Size type="coderapp.internal.codertype.Dimension">
+                    <Length>7</Length>
+                  </Size>
+                  <Size type="coderapp.internal.codertype.Dimension">
+                    <Length>15</Length>
+                  </Size>
+                </Types>
+                <Types id="11" type="coderapp.internal.codertype.PrimitiveType">
+                  <ClassName>double</ClassName>
+                  <Size type="coderapp.internal.codertype.Dimension">
+                    <Length>3</Length>
+                  </Size>
+                  <Size type="coderapp.internal.codertype.Dimension">
+                    <Length>15</Length>
+                  </Size>
+                </Types>
+                <Types id="13" type="coderapp.internal.codertype.PrimitiveType">
+                  <ClassName>double</ClassName>
+                  <Size type="coderapp.internal.codertype.Dimension">
+                    <Length>0</Length>
+                  </Size>
+                  <Size type="coderapp.internal.codertype.Dimension"/>
+                </Types>
+              </Types>
+            </coderapp.internal.interface.project.Interface>
+          </MF0>
+        </part>
+      </parts>
+    </layer>
+    <layer id="matlabCoder" version="R2025a">
+      <parts>
+        <part role="matlabCoder">
+          <MF0 packageUris="http://schema.mathworks.com/mf0/coderapp_config_datamodel/R2021a.001 http://schema.mathworks.com/mf0/coderapp_core_proj_dm/R2025a http://schema.mathworks.com/mf0/coderapp_core_rt_dm/R2022b http://schema.mathworks.com/mf0/coderapp_form_datamodel/R2020a http://schema.mathworks.com/mf0/coderapp_gpucoder_proj_dm/R2025a http://schema.mathworks.com/mf0/coderapp_gpucoder_rt_dm/R2022b http://schema.mathworks.com/mf0/coderapp_matlabcoder_proj_dm/R2025a http://schema.mathworks.com/mf0/coderapp_matlabcoder_rt_dm/R2022b http://schema.mathworks.com/mf0/coderapp_types_project_datamodel/R2025a http://schema.mathworks.com/mf0/coderapp_types_runtime_datamodel/R2022b http://schema.mathworks.com/mf0/coderapp_utils_datamodel/R2020a" version="1.1">
+            <coderapp.internal.mlc.mfz.MatlabCoderProjectState id="1" type="coderapp.internal.mlc.mfz.MatlabCoderProjectState">
+              <Activity id="2" type="coderapp.internal.mlc.mfz.MainBuildActivity">
+                <Compile>SUCCESS</Compile>
+                <Generate>SUCCESS</Generate>
+                <TargetHardware>MATLAB Host Computer</TargetHardware>
+                <TargetLanguage>C</TargetLanguage>
+                <Result id="3" type="coderapp.internal.mlc.mfz.MatlabCoderCodegenResult"/>
+              </Activity>
+              <MainBuildResult id="3" type="coderapp.internal.mlc.mfz.MatlabCoderCodegenResult">
+                <LogDirectory>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer\codegen\mex\discretize_error_dynamics_FOH_kepler_fixedtf</LogDirectory>
+                <MainReport id="4" type="coderapp.internal.build.mfz.CodegenArtifact"/>
+                <OutputFile>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer\discretize_error_dynamics_FOH_kepler_fixedtf_mex.mexw64</OutputFile>
+                <Artifacts id="4" type="coderapp.internal.build.mfz.CodegenArtifact">
+                  <SubType>CODEGEN_REPORT</SubType>
+                  <File type="coderapp.internal.util.mfz.FileSpec">
+                    <Path>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer\codegen\mex\discretize_error_dynamics_FOH_kepler_fixedtf\html\report.mldatx</Path>
+                  </File>
+                  <Type>CODEGEN_REPORT</Type>
+                </Artifacts>
+                <Artifacts id="5" type="coderapp.internal.build.mfz.CodegenArtifact">
+                  <SubType>MEX</SubType>
+                  <File type="coderapp.internal.util.mfz.FileSpec">
+                    <Path>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer\discretize_error_dynamics_FOH_kepler_fixedtf_mex.mexw64</Path>
+                  </File>
+                  <Type>BINARY</Type>
+                </Artifacts>
+                <Artifacts id="6" type="coderapp.internal.build.mfz.CodegenArtifact">
+                  <File type="coderapp.internal.util.mfz.FileSpec">
+                    <Path>C:\Program Files\MATLAB\R2025a\extern\include\emlrt.h</Path>
+                  </File>
+                  <Type>GENERATED_SOURCE</Type>
+                </Artifacts>
+                <Artifacts id="7" type="coderapp.internal.build.mfz.CodegenArtifact">
+                  <File type="coderapp.internal.util.mfz.FileSpec">
+                    <Path>C:\Program Files\MATLAB\R2025a\extern\include\matrix.h</Path>
+                  </File>
+                  <Type>GENERATED_SOURCE</Type>
+                </Artifacts>
+                <Artifacts id="8" type="coderapp.internal.build.mfz.CodegenArtifact">
+                  <File type="coderapp.internal.util.mfz.FileSpec">
+                    <Path>C:\Program Files\MATLAB\R2025a\extern\include\mex.h</Path>
+                  </File>
+                  <Type>GENERATED_SOURCE</Type>
+                </Artifacts>
+                <Artifacts id="9" type="coderapp.internal.build.mfz.CodegenArtifact">
+                  <File type="coderapp.internal.util.mfz.FileSpec">
+                    <Path>C:\Program Files\MATLAB\R2025a\extern\include\tmwtypes.h</Path>
+                  </File>
+                  <Type>GENERATED_SOURCE</Type>
+                </Artifacts>
+                <Artifacts id="10" type="coderapp.internal.build.mfz.CodegenArtifact">
+                  <File type="coderapp.internal.util.mfz.FileSpec">
+                    <Path>C:\Program Files\MATLAB\R2025a\extern\version\c_mexapi_version.c</Path>
+                  </File>
+                  <Type>GENERATED_SOURCE</Type>
+                </Artifacts>
+                <Artifacts id="11" type="coderapp.internal.build.mfz.CodegenArtifact">
+                  <File type="coderapp.internal.util.mfz.FileSpec">
+                    <Path>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer\codegen\mex\discretize_error_dynamics_FOH_kepler_fixedtf\A_kepler_fixedtf.c</Path>
+                  </File>
+                  <Type>GENERATED_SOURCE</Type>
+                </Artifacts>
+                <Artifacts id="12" type="coderapp.internal.build.mfz.CodegenArtifact">
+                  <File type="coderapp.internal.util.mfz.FileSpec">
+                    <Path>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer\codegen\mex\discretize_error_dynamics_FOH_kepler_fixedtf\A_kepler_fixedtf.h</Path>
+                  </File>
+                  <Type>GENERATED_SOURCE</Type>
+                </Artifacts>
+                <Artifacts id="13" type="coderapp.internal.build.mfz.CodegenArtifact">
+                  <File type="coderapp.internal.util.mfz.FileSpec">
+                    <Path>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer\codegen\mex\discretize_error_dynamics_FOH_kepler_fixedtf\discretize_error_dynamics_FOH_kepler_fixedtf.c</Path>
+                  </File>
+                  <Type>GENERATED_SOURCE</Type>
+                </Artifacts>
+                <Artifacts id="14" type="coderapp.internal.build.mfz.CodegenArtifact">
+                  <File type="coderapp.internal.util.mfz.FileSpec">
+                    <Path>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer\codegen\mex\discretize_error_dynamics_FOH_kepler_fixedtf\discretize_error_dynamics_FOH_kepler_fixedtf.h</Path>
+                  </File>
+                  <Type>GENERATED_SOURCE</Type>
+                </Artifacts>
+                <Artifacts id="15" type="coderapp.internal.build.mfz.CodegenArtifact">
+                  <File type="coderapp.internal.util.mfz.FileSpec">
+                    <Path>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer\codegen\mex\discretize_error_dynamics_FOH_kepler_fixedtf\discretize_error_dynamics_FOH_kepler_fixedtf_data.c</Path>
+                  </File>
+                  <Type>GENERATED_SOURCE</Type>
+                </Artifacts>
+                <Artifacts id="16" type="coderapp.internal.build.mfz.CodegenArtifact">
+                  <File type="coderapp.internal.util.mfz.FileSpec">
+                    <Path>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer\codegen\mex\discretize_error_dynamics_FOH_kepler_fixedtf\discretize_error_dynamics_FOH_kepler_fixedtf_data.h</Path>
+                  </File>
+                  <Type>GENERATED_SOURCE</Type>
+                </Artifacts>
+                <Artifacts id="17" type="coderapp.internal.build.mfz.CodegenArtifact">
+                  <File type="coderapp.internal.util.mfz.FileSpec">
+                    <Path>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer\codegen\mex\discretize_error_dynamics_FOH_kepler_fixedtf\discretize_error_dynamics_FOH_kepler_fixedtf_emxutil.c</Path>
+                  </File>
+                  <Type>GENERATED_SOURCE</Type>
+                </Artifacts>
+                <Artifacts id="18" type="coderapp.internal.build.mfz.CodegenArtifact">
+                  <File type="coderapp.internal.util.mfz.FileSpec">
+                    <Path>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer\codegen\mex\discretize_error_dynamics_FOH_kepler_fixedtf\discretize_error_dynamics_FOH_kepler_fixedtf_emxutil.h</Path>
+                  </File>
+                  <Type>GENERATED_SOURCE</Type>
+                </Artifacts>
+                <Artifacts id="19" type="coderapp.internal.build.mfz.CodegenArtifact">
+                  <File type="coderapp.internal.util.mfz.FileSpec">
+                    <Path>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer\codegen\mex\discretize_error_dynamics_FOH_kepler_fixedtf\discretize_error_dynamics_FOH_kepler_fixedtf_initialize.c</Path>
+                  </File>
+                  <Type>GENERATED_SOURCE</Type>
+                </Artifacts>
+                <Artifacts id="20" type="coderapp.internal.build.mfz.CodegenArtifact">
+                  <File type="coderapp.internal.util.mfz.FileSpec">
+                    <Path>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer\codegen\mex\discretize_error_dynamics_FOH_kepler_fixedtf\discretize_error_dynamics_FOH_kepler_fixedtf_initialize.h</Path>
+                  </File>
+                  <Type>GENERATED_SOURCE</Type>
+                </Artifacts>
+                <Artifacts id="21" type="coderapp.internal.build.mfz.CodegenArtifact">
+                  <File type="coderapp.internal.util.mfz.FileSpec">
+                    <Path>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer\codegen\mex\discretize_error_dynamics_FOH_kepler_fixedtf\discretize_error_dynamics_FOH_kepler_fixedtf_internal_types.h</Path>
+                  </File>
+                  <Type>GENERATED_SOURCE</Type>
+                </Artifacts>
+                <Artifacts id="22" type="coderapp.internal.build.mfz.CodegenArtifact">
+                  <File type="coderapp.internal.util.mfz.FileSpec">
+                    <Path>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer\codegen\mex\discretize_error_dynamics_FOH_kepler_fixedtf\discretize_error_dynamics_FOH_kepler_fixedtf_terminate.c</Path>
+                  </File>
+                  <Type>GENERATED_SOURCE</Type>
+                </Artifacts>
+                <Artifacts id="23" type="coderapp.internal.build.mfz.CodegenArtifact">
+                  <File type="coderapp.internal.util.mfz.FileSpec">
+                    <Path>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer\codegen\mex\discretize_error_dynamics_FOH_kepler_fixedtf\discretize_error_dynamics_FOH_kepler_fixedtf_terminate.h</Path>
+                  </File>
+                  <Type>GENERATED_SOURCE</Type>
+                </Artifacts>
+                <Artifacts id="24" type="coderapp.internal.build.mfz.CodegenArtifact">
+                  <File type="coderapp.internal.util.mfz.FileSpec">
+                    <Path>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer\codegen\mex\discretize_error_dynamics_FOH_kepler_fixedtf\discretize_error_dynamics_FOH_kepler_fixedtf_types.h</Path>
+                  </File>
+                  <Type>GENERATED_SOURCE</Type>
+                </Artifacts>
+                <Artifacts id="25" type="coderapp.internal.build.mfz.CodegenArtifact">
+                  <File type="coderapp.internal.util.mfz.FileSpec">
+                    <Path>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer\codegen\mex\discretize_error_dynamics_FOH_kepler_fixedtf\f_kepler_fixedtf.c</Path>
+                  </File>
+                  <Type>GENERATED_SOURCE</Type>
+                </Artifacts>
+                <Artifacts id="26" type="coderapp.internal.build.mfz.CodegenArtifact">
+                  <File type="coderapp.internal.util.mfz.FileSpec">
+                    <Path>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer\codegen\mex\discretize_error_dynamics_FOH_kepler_fixedtf\f_kepler_fixedtf.h</Path>
+                  </File>
+                  <Type>GENERATED_SOURCE</Type>
+                </Artifacts>
+                <Artifacts id="27" type="coderapp.internal.build.mfz.CodegenArtifact">
+                  <File type="coderapp.internal.util.mfz.FileSpec">
+                    <Path>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer\codegen\mex\discretize_error_dynamics_FOH_kepler_fixedtf\integrate_error_discrete_FOH_kepler_fixedtf.c</Path>
+                  </File>
+                  <Type>GENERATED_SOURCE</Type>
+                </Artifacts>
+                <Artifacts id="28" type="coderapp.internal.build.mfz.CodegenArtifact">
+                  <File type="coderapp.internal.util.mfz.FileSpec">
+                    <Path>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer\codegen\mex\discretize_error_dynamics_FOH_kepler_fixedtf\integrate_error_discrete_FOH_kepler_fixedtf.h</Path>
+                  </File>
+                  <Type>GENERATED_SOURCE</Type>
+                </Artifacts>
+                <Artifacts id="29" type="coderapp.internal.build.mfz.CodegenArtifact">
+                  <File type="coderapp.internal.util.mfz.FileSpec">
+                    <Path>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer\codegen\mex\discretize_error_dynamics_FOH_kepler_fixedtf\rt_nonfinite.c</Path>
+                  </File>
+                  <Type>GENERATED_SOURCE</Type>
+                </Artifacts>
+                <Artifacts id="30" type="coderapp.internal.build.mfz.CodegenArtifact">
+                  <File type="coderapp.internal.util.mfz.FileSpec">
+                    <Path>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer\codegen\mex\discretize_error_dynamics_FOH_kepler_fixedtf\rt_nonfinite.h</Path>
+                  </File>
+                  <Type>GENERATED_SOURCE</Type>
+                </Artifacts>
+                <Artifacts id="31" type="coderapp.internal.build.mfz.CodegenArtifact">
+                  <File type="coderapp.internal.util.mfz.FileSpec">
+                    <Path>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer\codegen\mex\discretize_error_dynamics_FOH_kepler_fixedtf\rtwtypes.h</Path>
+                  </File>
+                  <Type>GENERATED_SOURCE</Type>
+                </Artifacts>
+                <Artifacts id="32" type="coderapp.internal.build.mfz.CodegenArtifact">
+                  <File type="coderapp.internal.util.mfz.FileSpec">
+                    <Path>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer\codegen\mex\discretize_error_dynamics_FOH_kepler_fixedtf\interface\_coder_discretize_error_dynamics_FOH_kepler_fixedtf_api.c</Path>
+                  </File>
+                  <Type>GENERATED_SOURCE</Type>
+                </Artifacts>
+                <Artifacts id="33" type="coderapp.internal.build.mfz.CodegenArtifact">
+                  <File type="coderapp.internal.util.mfz.FileSpec">
+                    <Path>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer\codegen\mex\discretize_error_dynamics_FOH_kepler_fixedtf\interface\_coder_discretize_error_dynamics_FOH_kepler_fixedtf_api.h</Path>
+                  </File>
+                  <Type>GENERATED_SOURCE</Type>
+                </Artifacts>
+                <Artifacts id="34" type="coderapp.internal.build.mfz.CodegenArtifact">
+                  <File type="coderapp.internal.util.mfz.FileSpec">
+                    <Path>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer\codegen\mex\discretize_error_dynamics_FOH_kepler_fixedtf\interface\_coder_discretize_error_dynamics_FOH_kepler_fixedtf_info.c</Path>
+                  </File>
+                  <Type>GENERATED_SOURCE</Type>
+                </Artifacts>
+                <Artifacts id="35" type="coderapp.internal.build.mfz.CodegenArtifact">
+                  <File type="coderapp.internal.util.mfz.FileSpec">
+                    <Path>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer\codegen\mex\discretize_error_dynamics_FOH_kepler_fixedtf\interface\_coder_discretize_error_dynamics_FOH_kepler_fixedtf_info.h</Path>
+                  </File>
+                  <Type>GENERATED_SOURCE</Type>
+                </Artifacts>
+                <Artifacts id="36" type="coderapp.internal.build.mfz.CodegenArtifact">
+                  <File type="coderapp.internal.util.mfz.FileSpec">
+                    <Path>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer\codegen\mex\discretize_error_dynamics_FOH_kepler_fixedtf\interface\_coder_discretize_error_dynamics_FOH_kepler_fixedtf_mex.c</Path>
+                  </File>
+                  <Type>GENERATED_SOURCE</Type>
+                </Artifacts>
+                <Artifacts id="37" type="coderapp.internal.build.mfz.CodegenArtifact">
+                  <File type="coderapp.internal.util.mfz.FileSpec">
+                    <Path>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer\codegen\mex\discretize_error_dynamics_FOH_kepler_fixedtf\interface\_coder_discretize_error_dynamics_FOH_kepler_fixedtf_mex.h</Path>
+                  </File>
+                  <Type>GENERATED_SOURCE</Type>
+                </Artifacts>
+                <BuildFolder type="coderapp.internal.util.mfz.FileSpec"/>
+                <Success>true</Success>
+                <Timestamp>2025-09-07T00:39:59</Timestamp>
+              </MainBuildResult>
+            </coderapp.internal.mlc.mfz.MatlabCoderProjectState>
+          </MF0>
+        </part>
+        <part role="standaloneConfig">
+          <MF0 packageUris="http://schema.mathworks.com/mf0/coderapp_config_datamodel/R2021a.001 http://schema.mathworks.com/mf0/coderapp_core_proj_dm/R2025a http://schema.mathworks.com/mf0/coderapp_core_rt_dm/R2022b http://schema.mathworks.com/mf0/coderapp_form_datamodel/R2020a http://schema.mathworks.com/mf0/coderapp_gpucoder_proj_dm/R2025a http://schema.mathworks.com/mf0/coderapp_gpucoder_rt_dm/R2022b http://schema.mathworks.com/mf0/coderapp_matlabcoder_proj_dm/R2025a http://schema.mathworks.com/mf0/coderapp_matlabcoder_rt_dm/R2022b http://schema.mathworks.com/mf0/coderapp_types_project_datamodel/R2025a http://schema.mathworks.com/mf0/coderapp_types_runtime_datamodel/R2022b http://schema.mathworks.com/mf0/coderapp_utils_datamodel/R2020a" version="1.1">
+            <coderapp.internal.ext.ConfigStore id="1" type="coderapp.internal.ext.ConfigStore">
+              <Values id="2" type="coderapp.internal.ext.ConfigEntry">
+                <Key>genCodeOnly</Key>
+                <Data id="3" type="coderapp.internal.config.data.BooleanParamData">
+                  <Help type="coderapp.internal.util.DocRef"/>
+                </Data>
+              </Values>
+            </coderapp.internal.ext.ConfigStore>
+          </MF0>
+        </part>
+        <part role="mexConfig">
+          <MF0 packageUris="http://schema.mathworks.com/mf0/coderapp_config_datamodel/R2021a.001 http://schema.mathworks.com/mf0/coderapp_core_proj_dm/R2025a http://schema.mathworks.com/mf0/coderapp_core_rt_dm/R2022b http://schema.mathworks.com/mf0/coderapp_form_datamodel/R2020a http://schema.mathworks.com/mf0/coderapp_gpucoder_proj_dm/R2025a http://schema.mathworks.com/mf0/coderapp_gpucoder_rt_dm/R2022b http://schema.mathworks.com/mf0/coderapp_matlabcoder_proj_dm/R2025a http://schema.mathworks.com/mf0/coderapp_matlabcoder_rt_dm/R2022b http://schema.mathworks.com/mf0/coderapp_types_project_datamodel/R2025a http://schema.mathworks.com/mf0/coderapp_types_runtime_datamodel/R2022b http://schema.mathworks.com/mf0/coderapp_utils_datamodel/R2020a" version="1.1">
+            <coderapp.internal.ext.ConfigStore id="1" type="coderapp.internal.ext.ConfigStore"/>
+          </MF0>
+        </part>
+      </parts>
+    </layer>
+    <layer id="gpuCoder" version="R2025a">
+      <parts/>
+    </layer>
+  </layers>
+</coderProject>

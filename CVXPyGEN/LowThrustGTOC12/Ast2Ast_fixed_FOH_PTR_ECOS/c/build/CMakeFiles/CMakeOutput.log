@@ -7,7 +7,7 @@ Id flags:
 The output was:
 0
 MSBuild version 17.4.1+9a89d02ff for .NET Framework
-Build started 8/28/2025 9:53:38 AM.
+Build started 9/6/2025 9:02:36 PM.
 Project "C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Ast_fixed_FOH_PTR_ECOS\c\build\CMakeFiles\3.24.2\CompilerIdC\CompilerIdC.vcxproj" on node 1 (default targets).
 PrepareForBuild:
   Creating directory "Debug\".
@@ -33,7 +33,7 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:00.77
+Time Elapsed 00:00:00.94
 
 
 Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.exe"
@@ -50,7 +50,7 @@ Id flags:
 The output was:
 0
 MSBuild version 17.4.1+9a89d02ff for .NET Framework
-Build started 8/28/2025 9:53:39 AM.
+Build started 9/6/2025 9:02:37 PM.
 Project "C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Ast_fixed_FOH_PTR_ECOS\c\build\CMakeFiles\3.24.2\CompilerIdCXX\CompilerIdCXX.vcxproj" on node 1 (default targets).
 PrepareForBuild:
   Creating directory "Debug\".
@@ -76,7 +76,7 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:00.62
+Time Elapsed 00:00:00.58
 
 
 Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CompilerIdCXX.exe"
@@ -88,24 +88,24 @@ The CXX compiler identification is MSVC, found in "C:/Users/thatf/OneDrive/Docum
 Detecting C compiler ABI info compiled with the following output:
 Change Dir: C:/Users/thatf/OneDrive/Documents/ASA/PSP-ASA-GTOC12-Problem/CVXPyGEN/LowThrustGTOC12/Ast2Ast_fixed_FOH_PTR_ECOS/c/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/MSBuild.exe cmTC_e522d.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:m && MSBuild version 17.4.1+9a89d02ff for .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/MSBuild.exe cmTC_f1fda.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:m && MSBuild version 17.4.1+9a89d02ff for .NET Framework
   Microsoft (R) C/C++ Optimizing Compiler Version 19.34.31937 for x64
-  CMakeCCompilerABI.c
   Copyright (C) Microsoft Corporation.  All rights reserved.
-  cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\"Debug\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_e522d.dir\Debug\\" /Fd"cmTC_e522d.dir\Debug\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\Program Files\CMake\share\cmake-3.24\Modules\CMakeCCompilerABI.c"
-  cmTC_e522d.vcxproj -> C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Ast_fixed_FOH_PTR_ECOS\c\build\CMakeFiles\CMakeTmp\Debug\cmTC_e522d.exe
+  CMakeCCompilerABI.c
+  cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\"Debug\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_f1fda.dir\Debug\\" /Fd"cmTC_f1fda.dir\Debug\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\Program Files\CMake\share\cmake-3.24\Modules\CMakeCCompilerABI.c"
+  cmTC_f1fda.vcxproj -> C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Ast_fixed_FOH_PTR_ECOS\c\build\CMakeFiles\CMakeTmp\Debug\cmTC_f1fda.exe
 
 
 
 Detecting CXX compiler ABI info compiled with the following output:
 Change Dir: C:/Users/thatf/OneDrive/Documents/ASA/PSP-ASA-GTOC12-Problem/CVXPyGEN/LowThrustGTOC12/Ast2Ast_fixed_FOH_PTR_ECOS/c/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/MSBuild.exe cmTC_694be.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:m && MSBuild version 17.4.1+9a89d02ff for .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/MSBuild.exe cmTC_c6f5c.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:m && MSBuild version 17.4.1+9a89d02ff for .NET Framework
   Microsoft (R) C/C++ Optimizing Compiler Version 19.34.31937 for x64
   CMakeCXXCompilerABI.cpp
   Copyright (C) Microsoft Corporation.  All rights reserved.
-  cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\"Debug\"" /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_694be.dir\Debug\\" /Fd"cmTC_694be.dir\Debug\vc143.pdb" /external:W3 /Gd /TP /errorReport:queue "C:\Program Files\CMake\share\cmake-3.24\Modules\CMakeCXXCompilerABI.cpp"
-  cmTC_694be.vcxproj -> C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Ast_fixed_FOH_PTR_ECOS\c\build\CMakeFiles\CMakeTmp\Debug\cmTC_694be.exe
+  cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\"Debug\"" /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_c6f5c.dir\Debug\\" /Fd"cmTC_c6f5c.dir\Debug\vc143.pdb" /external:W3 /Gd /TP /errorReport:queue "C:\Program Files\CMake\share\cmake-3.24\Modules\CMakeCXXCompilerABI.cpp"
+  cmTC_c6f5c.vcxproj -> C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Ast_fixed_FOH_PTR_ECOS\c\build\CMakeFiles\CMakeTmp\Debug\cmTC_c6f5c.exe
 
 
 

@@ -24,7 +24,7 @@ classdef DeterministicProblem
         sol
         tolerances
         params
-        discretization_method string {mustBeMember(discretization_method, ["state", "error", "errorRK4", "errorRKV65", "errorRKV87"])} = "state"
+        discretization_method string {mustBeMember(discretization_method, ["state", "error", "errorRK4", "errorRK4_kepler_fixedtf", "errorRKV65", "errorRKV87"])} = "state"
         N_sub
         virtualization_method string {mustBeMember(virtualization_method, ["control", "state"])} = "control"
         vehicle
@@ -127,6 +127,12 @@ classdef DeterministicProblem
                     error("RK4 error discretization for ZOH not implemented")
                 elseif prob.u_hold == "FOH"
                     [prob.disc.A_k, prob.disc.B_plus_k, prob.disc.B_minus_k, prob.disc.E_k, prob.disc.c_k, Delta] = discretize_error_dynamics_FOH_RK4(prob.cont.f, prob.cont.A, prob.cont.B, prob.cont.E, prob.N, [0, prob.tf], x_ref, u_ref, p_ref, prob.N_sub);
+                end
+            elseif prob.discretization_method == "errorRK4_kepler_fixedtf"
+                if prob.u_hold == "ZOH"
+                   error("Kepler Fixed tf RK4 error discretization for ZOH not implemented")
+                elseif prob.u_hold == "FOH"
+                   [prob.disc.A_k, prob.disc.B_plus_k, prob.disc.B_minus_k, prob.disc.E_k, prob.disc.c_k, Delta] = discretize_error_dynamics_FOH_kepler_fixedtf_mex(prob.N, [0, prob.tf], x_ref, u_ref, p_ref);
                 end
             elseif prob.discretization_method == "errorRKV65"
                 if prob.u_hold == "ZOH"
