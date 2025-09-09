@@ -1,7 +1,7 @@
 function [v1_best, v2_best, dV_best, N_best] = best_lambert_thruN(x_1, x_2, ToF, N_max, v1_assist, v2_assist)
     % Solve Lambertus Maximus
     Q = size(x_1, 2);
-    direction = -ones([Q, 1]);
+    direction = ones([Q, 1]);
 
     % First find N (best number of revolutions)
     [v1vec, v2vec, uptoNhave, infoReturnStatus, infoHalfRevStatus] = ivLam_thruN_multipleInputDLL(Q, x_1(1:3, :), x_2(1:3, :), ToF, direction, N_max);

@@ -1,4 +1,4 @@
-function [ptr_sol] = ptr(prob, ptr_ops, parser)
+function [ptr_sol] = ptr(prob, ptr_ops, parser, options)
 %PTR Sequential Convex Programming algorithm
 %   If converged, solution satisfies the nonlinear continuous-time equations of motion
 % to within a tolerance on the order of eps_feasible feasible, satisfies all algebraic constraints at each
@@ -7,6 +7,7 @@ arguments
     prob 
     ptr_ops 
     parser string {mustBeMember(parser, ["CVX", "CVXPY", "CVXPyGEN"])} = "CVX"
+    options.quiet = 0
 end
 
 x_ref = zeros([prob.n.x, prob.N, ptr_ops.iter_max + 1]);
@@ -27,7 +28,9 @@ problem = [];
 % Convexify along initial guess
 [prob, ptr_sol.Delta(:, :, 1)] = convexify_along_reference(prob, prob.guess.x, prob.guess.u, prob.guess.p);
 
-disp(" k |       status      |   vd  |   vs  |  vbc_0 |  vbc_N |    J    |   J_tr  |   J_vc   |   dJ %  |   dx   |   du   |   dp   | delta |  dyn  |  eta  | eta_x | eta_u | eta_p")
+if options.quiet == 0
+    disp(" k |       status      |   vd  |   vs  |  vbc_0 |  vbc_N |    J    |   J_tr  |   J_vc   |   dJ %  |   dx   |   du   |   dp   | delta |  dyn  |  eta  | eta_x | eta_u | eta_p")
+end
 
 for i = 1:(ptr_ops.iter_max)
     % Solve convex subproblem and update reference
@@ -71,10 +74,12 @@ for i = 1:(ptr_ops.iter_max)
 
     ptr_sol.info(i) = sol_info;
 
-    if i == 1
-        fprintf("%2.f | %17s | %5.1g | %5.1g | %5.1g | %5.1g | %5.3g | %5.3g | %5.3g |         | %6.1g | %6.1g | %5.1g | %5.1g | %5s | %5.1g | %5.1g | %5.1g | %5.1g\n", i, ptr_sol.info(i).status, norm(ptr_sol.info(i).vd), norm(ptr_sol.info(i).vs), norm(ptr_sol.info(i).vbc_0), norm(ptr_sol.info(i).vbc_N), ptr_sol.info(i).J, ptr_sol.info(i).J_tr, ptr_sol.info(i).J_vc, sum(ptr_sol.info(i).dx), sum(ptr_sol.info(i).du), sum(ptr_sol.info(i).dp), ptr_sol.info(i).delta, dyn_str, norm(ptr_sol.info(i).eta), norm(ptr_sol.info(i).eta_x), norm(ptr_sol.info(i).eta_u), norm(ptr_sol.info(i).eta_p))
-    else
-        fprintf("%2.f | %17s | %5.1g | %5.1g | %5.1g | %5.1g | %5.3g | %5.3g | %5.3g | %6.3f | %6.1g | %6.1g | %5.1g | %5.1g | %5s | %5.1g | %5.1g | %5.1g | %5.1g\n", i, ptr_sol.info(i).status, norm(ptr_sol.info(i).vd), norm(ptr_sol.info(i).vs), norm(ptr_sol.info(i).vbc_0), norm(ptr_sol.info(i).vbc_N), ptr_sol.info(i).J, ptr_sol.info(i).J_tr, ptr_sol.info(i).J_vc, ptr_sol.info(i).dJ, sum(ptr_sol.info(i).dx), sum(ptr_sol.info(i).du), sum(ptr_sol.info(i).dp), ptr_sol.info(i).delta, dyn_str, norm(ptr_sol.info(i).eta), norm(ptr_sol.info(i).eta_x), norm(ptr_sol.info(i).eta_u), norm(ptr_sol.info(i).eta_p))
+    if options.quiet == 0
+        if i == 1
+            fprintf("%2.f | %17s | %5.1g | %5.1g | %5.1g | %5.1g | %5.3g | %5.3g | %5.3g |         | %6.1g | %6.1g | %5.1g | %5.1g | %5s | %5.1g | %5.1g | %5.1g | %5.1g\n", i, ptr_sol.info(i).status, norm(ptr_sol.info(i).vd), norm(ptr_sol.info(i).vs), norm(ptr_sol.info(i).vbc_0), norm(ptr_sol.info(i).vbc_N), ptr_sol.info(i).J, ptr_sol.info(i).J_tr, ptr_sol.info(i).J_vc, sum(ptr_sol.info(i).dx), sum(ptr_sol.info(i).du), sum(ptr_sol.info(i).dp), ptr_sol.info(i).delta, dyn_str, norm(ptr_sol.info(i).eta), norm(ptr_sol.info(i).eta_x), norm(ptr_sol.info(i).eta_u), norm(ptr_sol.info(i).eta_p))
+        else
+            fprintf("%2.f | %17s | %5.1g | %5.1g | %5.1g | %5.1g | %5.3g | %5.3g | %5.3g | %6.3f | %6.1g | %6.1g | %5.1g | %5.1g | %5s | %5.1g | %5.1g | %5.1g | %5.1g\n", i, ptr_sol.info(i).status, norm(ptr_sol.info(i).vd), norm(ptr_sol.info(i).vs), norm(ptr_sol.info(i).vbc_0), norm(ptr_sol.info(i).vbc_N), ptr_sol.info(i).J, ptr_sol.info(i).J_tr, ptr_sol.info(i).J_vc, ptr_sol.info(i).dJ, sum(ptr_sol.info(i).dx), sum(ptr_sol.info(i).du), sum(ptr_sol.info(i).dp), ptr_sol.info(i).delta, dyn_str, norm(ptr_sol.info(i).eta), norm(ptr_sol.info(i).eta_x), norm(ptr_sol.info(i).eta_u), norm(ptr_sol.info(i).eta_p))
+        end
     end
 
     if i >= ptr_ops.iter_min && ptr_sol.delta_xp(i) < ptr_ops.delta_tol && ~ptr_sol.converged && sol_info.dyn
@@ -85,8 +90,10 @@ for i = 1:(ptr_ops.iter_max)
     end
 end
 
-if ptr_sol.converged == false
-    warning("PTR did not converge after %g iterations. delta_xp = %.3f. norm(Delta) = %.3f\n", i, ptr_sol.delta_xp(i), sum(vecnorm(ptr_sol.Delta(:, :, end))))
+if options.quiet < 2
+    if ptr_sol.converged == false
+        warning("PTR did not converge after %g iterations. delta_xp = %.3f. norm(Delta) = %.3f\n", i, ptr_sol.delta_xp(i), sum(vecnorm(ptr_sol.Delta(:, :, end))))
+    end
 end
 
 ptr_sol.x = prob.unscale_x(x_ref);

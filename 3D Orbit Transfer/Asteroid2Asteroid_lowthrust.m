@@ -17,7 +17,7 @@ mu_dim = mu_star;
 m0 = 3000 / m_star * 0.8;
 m_min = 500 / m_star; % dependent on a lot
 t0 = 1.6 * year_to_sec / t_star;
-ToF = 0.75 * year_to_sec / t_star;
+ToF = 0.6 * year_to_sec / t_star;
 tf = ToF;
 tf_actual = t0 + ToF;
 N = 15;
@@ -83,22 +83,293 @@ y=importdata('GTOC12_Asteroids_Data.txt');
 
 load_lambert()
 
-%%
-guesses = {};
-guesses_IDs = {};
-guesses_x0 = {};
-guesses_xf = {};
-guesses_ast1_plot = {};
-guesses_ast2_plot = {};
-for ID1 = 1008 : 1008
-%ID1 = 104;
-[x_kep_0_ast1, M_ast1, E_ast1, nu_ast1, x_keplerian_ast1, x_cartesian_ast1] = get_asteroid(ID1);
-
-scaler = [0, 0, pi/180, pi/180, pi/180, pi/180];
+%% Lambertify
+ast_data = importdata('GTOC12_Asteroids_Data.txt');
 offset = 2;
-[~, i] = min(vecnorm(scaler .* (y.data(ID1, offset + (1 : 6)) - y.data([1 : (ID1 - 1), (ID1 + 1) : end], offset + (1 : 6))), 2, 2));
-ID2 = i;
+IDs = 1 : 5000;
+ast.a = ast_data.data(IDs, offset + 1);
+ast.e = ast_data.data(IDs, offset + 2);
+ast.inc = deg2rad(ast_data.data(IDs, offset + 3));
+ast.Omega = deg2rad(ast_data.data(IDs, offset + 4));
+ast.omega = deg2rad(ast_data.data(IDs, offset + 5));
+ast.M0 = deg2rad(ast_data.data(IDs, offset + 6));
 
+comb_i_full = combinations(IDs, IDs);
+comb_i = comb_i_full(comb_i_full.IDs ~= comb_i_full.IDs_1, :);
+
+[x_kep_ast, x_cart_ast] = get_cartesian_states(ast, mu, [t0, tf_actual]);
+
+% Ast1 -> Ast2
+x_1_AA = x_cart_ast(:, comb_i.IDs, 1);
+x_2_AA = x_cart_ast(:, comb_i.IDs_1, 2);
+
+% Ast -> Ast (zero rev for drop-off)
+[v1_best_AA, v2_best_AA, dV_best_AA] = best_lambert_zeroN(x_1_AA, x_2_AA, ToF * ones([1, numel(comb_i.IDs)]), 0, 0);
+
+%% Filter Lambert Solutions
+max_dV = dV_max;
+multiplier = 1;
+lambert_filter = find(dV_best_AA < max_dV / multiplier);
+n_guesses = numel(lambert_filter)
+
+x_1_AA_filtered = x_1_AA(:, lambert_filter);
+x_2_AA_filtered = x_2_AA(:, lambert_filter);
+v1_best_AA_filtered = v1_best_AA(:, lambert_filter);
+v2_best_AA_filtered = v2_best_AA(:, lambert_filter);
+dV_best_AA_filtered = dV_best_AA(lambert_filter);
+
+%% Create Guesses from Lambert
+guesses = {};
+N_rev = 0;
+for i = 1 : n_guesses
+    %guess = lambert_initial_guess(x_1_AA(1:6), x_2_AA(), v1_best, v2_best, N_best, t_k_best, u_max, alpha, t_star, m_star, Isp, g_0, v_star, 6, 0, m0);
+    guess_i = lambert_simple_initial_guess(x_1_AA_filtered(1:6, i), x_2_AA_filtered(:, i), v1_best_AA_filtered(:, i), v2_best_AA_filtered(:, i), N_rev, t_k, m0);
+    guesses.x(:, :, i) = guess_i.x;
+
+    if u_hold == "FOH"
+       guess_i.u = [guess_i.u, [0;0;0] + 1e-5];
+    end
+
+   guesses.u(:, :, i) = guess_i.u;
+end
+guesses.p = zeros([0, n_guesses]);
+
+%%
+% guesses = {};
+% guesses_IDs = {};
+% guesses_x0 = {};
+% guesses_xf = {};
+% guesses_ast1_plot = {};
+% guesses_ast2_plot = {};
+% for ID1 = 1008 : 1008
+% %ID1 = 104;
+% [x_kep_0_ast1, M_ast1, E_ast1, nu_ast1, x_keplerian_ast1, x_cartesian_ast1] = get_asteroid(ID1);
+% 
+% scaler = [0, 0, pi/180, pi/180, pi/180, pi/180];
+% offset = 2;
+% [~, i] = min(vecnorm(scaler .* (y.data(ID1, offset + (1 : 6)) - y.data([1 : (ID1 - 1), (ID1 + 1) : end], offset + (1 : 6))), 2, 2));
+% ID2 = i;
+% 
+% [x_kep_0_ast2, M_ast2, E_ast2, nu_ast2, x_keplerian_ast2, x_cartesian_ast2] = get_asteroid(ID2);
+% 
+% % Initial conditions
+% t_plot = linspace(0, tf, 100) + t0;
+% x_cartesian_ast1_plot = zeros([6, numel(t_plot)]);
+% x_cartesian_ast2_plot = zeros([6, numel(t_plot)]);
+% for k = 1:numel(t_plot)
+%     x_cartesian_ast1_plot(:, k) = x_cartesian_ast1(t_plot(k));
+%     x_cartesian_ast2_plot(:, k) = x_cartesian_ast2(t_plot(k));
+% end
+% 
+% x_0 = [x_cartesian_ast1(t0); m0];
+% x_f = x_cartesian_ast2(tf_actual);
+% 
+% 
+% if initial_guess == "straight line"
+%     tofs = [tf];
+%     P_ast1 = 2 * pi *sqrt(x_kep_0_ast1(1) ^ 3 / mu);
+%     P_ast2 = 2 * pi * sqrt(x_kep_0_ast2(1) ^ 3 / mu);
+%     N_guess = tf / ((P_ast1 + P_ast2) / 2);
+%     AU_guess = interp1(tspan, [x_kep_0_ast1(1), x_kep_0_ast2(1)]', t_k);
+%     nu_guess = interp1(tspan, [nu_ast1(t0), nu_ast2(tf + t0) + 2 * pi * floor(N_guess)]', t_k);
+%     r_guess = [AU_guess .* cos(nu_guess); AU_guess .* sin(nu_guess)];
+%     r_guess(end + 1, :) = 0;
+%     v_guess = v_circ(r_guess, nu_guess, mu);
+%     v_guess(end + 1, :) = 0;
+%     m_guess = ones(1, N);
+% 
+%     guess.x = [r_guess; v_guess; m_guess];
+%     guess.u = interp1(tspan, ones(3, 2)' * 1e-5, t_k(1:Nu))';
+%     guess.p = [];
+% elseif initial_guess == "Lambert"
+%     tofs = [tf];
+%     P_ast1 = 2 * pi *sqrt(x_kep_0_ast1(1) ^ 3 / mu);
+%     P_ast2 = 2 * pi * sqrt(x_kep_0_ast2(1) ^ 3 / mu);
+%     N_guess = tf / ((P_ast1 + P_ast2) / 2);
+%     for i = 1 : numel(tofs)
+%         x_f_tofs(:, i) = x_cartesian_ast2(tofs(i) + t0);
+%     end
+%     [v1_best, v2_best, dV_best, ToF_best, N_best] = best_lambert(repmat(x_0(1:6), 1, numel(tofs)), x_f_tofs, tofs, [floor(N_guess), ceil(N_guess)], 0, 0);
+%     N_best = N_best;
+%     t_k_best = linspace(0, ToF_best, N);
+%     multiplier = 1;
+%     [v1_lamb_, v2_lamb_, dV_lamb_, N_lamb_] = best_lambert_thruN(repmat(x_0(1:6), 1, numel(tofs)), x_f_tofs, tofs, ceil(N_guess), 0, 0);
+%     % 
+%     % 
+%     % mf = m0 - alpha * u_max * tofs * t_star / m_star;
+%     % dV_max = Isp * g_0 * log(m0 ./ mf) / 1000 / v_star;
+%     % 
+%     % 
+%     % [~, best_i] = min(dV_lamb * multiplier - dV_max);
+%     % if dV_lamb(best_i) * multiplier < dV_max(best_i)
+%     %     best_i = find(dV_lamb * multiplier < dV_max, 1, "first");
+%     % end
+%     % dV_best = dV_lamb(best_i);
+%     % v1_best = v1_lamb(:, best_i);
+%     % v2_best = v2_lamb(:, best_i);
+%     % N_best = N_lamb(best_i) + 1;
+%     % ToF_best = tofs(best_i);
+% 
+%     if dV_best * multiplier > dV_max
+%         warning("WARNING: Lambert delta V %.1f%% greater than estimated max low thrust delta V", (dV_best - dV_max) / dV_max * 100)
+%         %error("WARNING: Lambert delta V %.1f%% greater than estimated max low thrust delta V", (dV_best - dV_max) / dV_max * 100)
+%         continue
+%     else 
+%         fprintf("Candidate: %g ID1, %g ID2 with %.1f%% less than estimated max low thrust delta V \n", ID1, ID2, (dV_max - dV_best) / dV_max * 100)
+%         %continue
+%     end
+% 
+%     %guess = lambert_initial_guess(x_0(1:6), x_f_tofs(:, tofs == ToF_best), v1_best, v2_best, N_best, t_k_best, u_max, alpha, t_star, m_star, Isp, g_0, v_star, 6, 0, m0);
+%     guess = lambert_simple_initial_guess(x_0(1:6), x_f_tofs(:, tofs == ToF_best), v1_best, v2_best, N_best, t_k_best, m0);
+%     guess.p = [];
+%     if u_hold == "FOH"
+%         guess.u(:, end + 1) = [0;0;0] + 1e-5;
+%     end
+% elseif initial_guess == "previous solution"
+%     guess.x = ptr_sol_prev.x(:, :, ptr_sol.converged_i);
+%     guess.u = ptr_sol_prev.u(:, :, ptr_sol.converged_i);
+%     guess.p = ptr_sol_prev.p(1:3, ptr_sol.converged_i);
+% end
+% 
+% guesses{end + 1} = guess;
+% guesses_IDs{end + 1} = [ID1, ID2];
+% guesses_x0{end + 1} = x_0;
+% guesses_xf{end + 1} = x_f;
+% guesses_ast1_plot{end + 1} = x_cartesian_ast1_plot;
+% guesses_ast2_plot{end + 1} = x_cartesian_ast2_plot;
+% end
+%%
+unload_lambert()
+
+
+%% solve
+guess_0.x = guesses.x(:, :, 1);
+guess_0.u = guesses.u(:, :, 1);
+guess_0.p = guesses.p(:, 1);
+problem = DeterministicProblem([x_1_AA_filtered(1:6, 1); m0], x_2_AA_filtered(1:6, 1), N, u_hold, tf, f, guess_0, convex_constraints, min_fuel_objective, scale = scale, integration_tolerance = 1e-12, discretization_method = "errorRK4_kepler_fixedtf", N_sub = 1, Name = "Ast2Ast_fixed");
+
+[problem, Delta_disc] = problem.discretize(guess_0.x, guess_0.u, guess_0.p);
+
+%%
+t1 = tic;
+
+ptr_sols_x = {};
+ptr_sols_u = {};
+ptr_sols_p = {};
+converged_is = {};
+batch_size = 100;
+parfor i = 1 : ceil(n_guesses / batch_size)
+    converged_is_batch = zeros([1, batch_size]);
+    ptr_sols_batch_x = zeros(nx, N, batch_size); 
+    ptr_sols_batch_u = zeros(nu, Nu, batch_size); 
+    ptr_sols_batch_p = zeros(np, batch_size); 
+    j_end = batch_size;
+    for j = 1 : batch_size
+        index = (i - 1) * batch_size + j;
+        if index > n_guesses
+            j_end = j - 1;
+            break
+        end
+        problem_new = problem;
+        problem_new.x0 = [x_1_AA_filtered(1:6, index); m0];
+        problem_new.xf = x_2_AA_filtered(1:6, index);
+        problem_new.initial_bc = @(x, p) x - problem_new.x0;
+        problem_new.terminal_bc = @(x, p, x_ref, p_ref) [x(1:6) - problem_new.xf; 0];
+        problem_new.guess.x = guesses.x(:, :, index);
+        problem_new.guess.u = guesses.u(:, :, index);
+        problem_new.guess.p = guesses.p(:, index);
+
+        ptr_sol_index = ptr(problem_new, ptr_ops, parser, quiet = 2);
+        converged_is_batch(j) = ptr_sol_index.converged;
+
+        if converged_is_batch(j)
+            ptr_sols_batch_x(:, :, j) = ptr_sol_index.x(:, :, ptr_sol_index.converged_i + 1);
+            ptr_sols_batch_u(:, :, j) = ptr_sol_index.u(:, :, ptr_sol_index.converged_i + 1);
+            ptr_sols_batch_p(:, :, j) = ptr_sol_index.p(:, ptr_sol_index.converged_i + 1);
+        end
+    end
+    converged_is{i} = converged_is_batch(1 : j_end);
+    ptr_sols_x{i} = ptr_sols_batch_x(:, :, 1 : j_end);
+    ptr_sols_u{i} = ptr_sols_batch_u(:, :, 1 : j_end);
+    ptr_sols_p{i} = ptr_sols_batch_p(:, 1 : j_end);
+end
+converged_is = find([converged_is{:}]);
+
+ptr_sols = {};
+ptr_sols.x = zeros(nx, N, numel(converged_is));
+ptr_sols.u = zeros(nu, Nu, numel(converged_is));
+ptr_sols.p = zeros(np, numel(converged_is));
+for b = 1 : ceil(n_guesses / batch_size)
+    n_converged_batch = size(ptr_sols_x{b}, 3);
+    ptr_sols.x(:, :, (1 : n_converged_batch) + (b - 1) * batch_size) = ptr_sols_x{b};
+    ptr_sols.u(:, :, (1 : n_converged_batch) + (b - 1) * batch_size) = ptr_sols_u{b};
+    ptr_sols.p(:, (1 : n_converged_batch) + (b - 1) * batch_size) = ptr_sols_p{b};
+end
+  
+% ptr_sols = {}; 
+% converged_is = [];
+% parfor i = 1 : n_guesses
+%     problem_new = problem;
+%     problem_new.x0 = [x_1_AA_filtered(1:6, i); m0];
+%     problem_new.xf = x_2_AA_filtered(1:6, i);
+%     problem_new.initial_bc = @(x, p) x - problem_new.x0;
+%     problem_new.terminal_bc = @(x, p, x_ref, p_ref) [x(1:6) - problem_new.xf; 0];
+%     problem_new.guess.x = guesses.x(:, :, i);
+%     problem_new.guess.u = guesses.u(:, :, i);
+%     problem_new.guess.p = guesses.p(:, i);
+% 
+%     ptr_sols{i} = ptr(problem_new, ptr_ops, parser, quiet = 2);
+%     converged_is = [converged_is, ptr_sols{i}.converged];
+% end
+% converged_is = find(converged_is);
+
+t2 = toc(t1);
+
+fprintf("%g transfers in %.3f seconds for %.3f transfers/s with %.3f%% successful\n", n_guesses, t2, n_guesses / t2, numel(converged_is) / n_guesses * 100)
+
+numel(converged_is)
+%%
+dV_rocket_equation = zeros([1, numel(converged_is)]);
+for i = 1 : numel(converged_is)
+    dV_rocket_equation(i) = Isp * g_0 * log(ptr_sols.x(7, 1, converged_is(i)) / ptr_sols.x(7, end, converged_is(i))) / 1000 / v_star;
+end
+
+dV_ratio = dV_rocket_equation ./ dV_best_AA_filtered(converged_is);
+
+figure
+scatter(dV_best_AA_filtered(converged_is) * v_star, dV_rocket_equation * v_star); hold on
+yline(dV_max * v_star, Label="Continuous Max Thrusting")
+line([0, dV_max * v_star], [0, dV_max * v_star])
+xlabel("Lambert dV [km / s]")
+ylabel("Low Thrust dV [km / s]")
+title("Low Thrust dV vs Lambert dV")
+subtitle(sprintf("For %.1f Month Asteroid Transfers at Year %.2f", ToF * t_star / year_to_sec * 12, t0 * t_star / year_to_sec))
+grid on
+hold off
+
+figure
+hist_ratio = histogram(dV_ratio);
+
+pd = fitdist(dV_ratio','gamma');
+y1 = gampdf(hist_ratio.BinEdges,pd.a,pd.b);
+figure
+plot(hist_ratio.BinEdges, y1 / sum(y1)); hold on
+stairs(hist_ratio.BinEdges(1:(end-1)), hist_ratio.Values / sum(hist_ratio.Values));
+hold off
+
+figure
+qqplot(dV_ratio, pd)
+
+%%
+ig = converged_is(5010);
+x = ptr_sols.x(:, :, ig);
+u = ptr_sols.u(:, :, ig);
+p = ptr_sols.p(:, ig);
+
+i_filter = lambert_filter(ig);
+ID1 = comb_i.IDs(i_filter);
+ID2 = comb_i.IDs_1(i_filter);
+[x_kep_0_ast1, M_ast1, E_ast1, nu_ast1, x_keplerian_ast1, x_cartesian_ast1] = get_asteroid(ID1);
 [x_kep_0_ast2, M_ast2, E_ast2, nu_ast2, x_keplerian_ast2, x_cartesian_ast2] = get_asteroid(ID2);
 
 % Initial conditions
@@ -110,145 +381,25 @@ for k = 1:numel(t_plot)
     x_cartesian_ast2_plot(:, k) = x_cartesian_ast2(t_plot(k));
 end
 
-x_0 = [x_cartesian_ast1(t0); m0];
-x_f = x_cartesian_ast2(tf_actual);
+guess.x = guesses.x(:, :, ig);
+guess.u = guesses.u(:, :, ig);
+guess.p = guesses.p(:, ig);
 
-
-if initial_guess == "straight line"
-    tofs = [tf];
-    P_ast1 = 2 * pi *sqrt(x_kep_0_ast1(1) ^ 3 / mu);
-    P_ast2 = 2 * pi * sqrt(x_kep_0_ast2(1) ^ 3 / mu);
-    N_guess = tf / ((P_ast1 + P_ast2) / 2);
-    AU_guess = interp1(tspan, [x_kep_0_ast1(1), x_kep_0_ast2(1)]', t_k);
-    nu_guess = interp1(tspan, [nu_ast1(t0), nu_ast2(tf + t0) + 2 * pi * floor(N_guess)]', t_k);
-    r_guess = [AU_guess .* cos(nu_guess); AU_guess .* sin(nu_guess)];
-    r_guess(end + 1, :) = 0;
-    v_guess = v_circ(r_guess, nu_guess, mu);
-    v_guess(end + 1, :) = 0;
-    m_guess = ones(1, N);
-    
-    guess.x = [r_guess; v_guess; m_guess];
-    guess.u = interp1(tspan, ones(3, 2)' * 1e-5, t_k(1:Nu))';
-    guess.p = [];
-elseif initial_guess == "Lambert"
-    tofs = [tf];
-    P_ast1 = 2 * pi *sqrt(x_kep_0_ast1(1) ^ 3 / mu);
-    P_ast2 = 2 * pi * sqrt(x_kep_0_ast2(1) ^ 3 / mu);
-    N_guess = tf / ((P_ast1 + P_ast2) / 2);
-    for i = 1 : numel(tofs)
-        x_f_tofs(:, i) = x_cartesian_ast2(tofs(i) + t0);
-    end
-    [v1_best, v2_best, dV_best, ToF_best, N_best] = best_lambert(repmat(x_0(1:6), 1, numel(tofs)), x_f_tofs, tofs, [floor(N_guess), ceil(N_guess)], 0, 0);
-    N_best = N_best;
-    t_k_best = linspace(0, ToF_best, N);
-    multiplier = 1;
-    % [v1_lamb_, v2_lamb_, dV_lamb_, N_lamb_] = best_lambert_thruN(repmat(x_0(1:6), 1, numel(tofs)), x_f_tofs, tofs, ceil(N_guess), 0, 0);
-    % 
-    % 
-    % mf = m0 - alpha * u_max * tofs * t_star / m_star;
-    % dV_max = Isp * g_0 * log(m0 ./ mf) / 1000 / v_star;
-    % 
-    % 
-    % [~, best_i] = min(dV_lamb * multiplier - dV_max);
-    % if dV_lamb(best_i) * multiplier < dV_max(best_i)
-    %     best_i = find(dV_lamb * multiplier < dV_max, 1, "first");
-    % end
-    % dV_best = dV_lamb(best_i);
-    % v1_best = v1_lamb(:, best_i);
-    % v2_best = v2_lamb(:, best_i);
-    % N_best = N_lamb(best_i) + 1;
-    % ToF_best = tofs(best_i);
-
-    if dV_best * multiplier > dV_max
-        warning("WARNING: Lambert delta V %.1f%% greater than estimated max low thrust delta V", (dV_best - dV_max) / dV_max * 100)
-        %error("WARNING: Lambert delta V %.1f%% greater than estimated max low thrust delta V", (dV_best - dV_max) / dV_max * 100)
-        continue
-    else 
-        fprintf("Candidate: %g ID1, %g ID2 with %.1f%% less than estimated max low thrust delta V \n", ID1, ID2, (dV_max - dV_best) / dV_max * 100)
-        %continue
-    end
-
-    guess = lambert_initial_guess(x_0(1:6), x_f_tofs(:, tofs == ToF_best), v1_best, v2_best, N_best, t_k_best, u_max, alpha, t_star, m_star, Isp, g_0, v_star, 6, 0, m0);
-    guess.p = [];
-    guess.u = guess.u + 1e-5;
-    if u_hold == "FOH"
-        guess.u(:, end + 1) = [0;0;0] + 1e-5;
-    end
-elseif initial_guess == "previous solution"
-    guess.x = ptr_sol_prev.x(:, :, ptr_sol.converged_i);
-    guess.u = ptr_sol_prev.u(:, :, ptr_sol.converged_i);
-    guess.p = ptr_sol_prev.p(1:3, ptr_sol.converged_i);
-end
-
-guesses{end + 1} = guess;
-guesses_IDs{end + 1} = [ID1, ID2];
-guesses_x0{end + 1} = x_0;
-guesses_xf{end + 1} = x_f;
-guesses_ast1_plot{end + 1} = x_cartesian_ast1_plot;
-guesses_ast2_plot{end + 1} = x_cartesian_ast2_plot;
-end
-%%
-unload_lambert()
-
-
-%% solve
-
-problem = DeterministicProblem(x_0, x_f, N, u_hold, tf, f, guess, convex_constraints, min_fuel_objective, scale = scale, integration_tolerance = 1e-12, discretization_method = "errorRK4_kepler_fixedtf", N_sub = 1, Name = "Ast2Ast_fixed");
-
-[problem, Delta_disc] = problem.discretize(guess.x, guess.u, guess.p);
-%%
-t1 = tic;
-
-ptr_sols = {}; 
-converged_is = [];
-for i = 1 : numel(guesses)
-    problem.x0 = guesses_x0{i};
-    problem.xf = guesses_xf{i};
-    problem.initial_bc = @(x, p) x - problem.x0;
-    problem.terminal_bc = @(x, p, x_ref, p_ref) [x(1:6) - problem.xf; 0];
-    problem.guess = guesses{i};
-
-    ptr_sols{i} = ptr(problem, ptr_ops, parser);
-    converged_is = [converged_is, ptr_sols{i}.converged];
-end
-converged_is = find(converged_is);
-
-t2 = toc(t1)
-
-%%
-ig = converged_is(1);
-ptr_sol = ptr_sols{ig};
-guess = guesses{ig};
-x_cartesian_ast1_plot = guesses_ast1_plot{ig};
-x_cartesian_ast2_plot = guesses_ast2_plot{ig};
-problem.x0 = guesses_x0{ig};
-problem.xf = guesses_xf{ig};
+problem.x0 = [x_1_AA_filtered(:, ig); m0];
+problem.xf = x_2_AA_filtered(:, ig);
 problem.initial_bc = @(x, p) x - problem.x0;
 problem.terminal_bc = @(x, p, x_ref, p_ref) [x(1:6) - problem.xf; 0];
-if ~ptr_sol.converged
-    ptr_sol.converged_i = ptr_ops.iter_max;
-end
 
-i = ptr_sol.converged_i + 1;
-x = ptr_sol.x(:, :, i);
-u = ptr_sol.u(:, :, i);
-p = ptr_sol.p(:, i);
 r = x(1:3, :); v = x(4:6, :);
 
 x_0_opt = problem.x0;
 
-[t_cont_sol, x_cont_sol, u_cont_sol] = problem.cont_prop(ptr_sol.u(:, :, i), ptr_sol.p(:, i), x0 = x_0_opt);
+[t_cont_sol, x_cont_sol, u_cont_sol] = problem.cont_prop(u, p, x0 = x_0_opt);
 r_cont_sol = x_cont_sol(1:3, :);
 v_cont_sol = x_cont_sol(4:6, :);
-%%
-[t_cont_sol, x_cont_sol, u_cont_sol] = problem.cont_prop(ptr_sol.u(:, :, i), ptr_sol.p(:, i), x0 = x_0_opt);
 
-% 
-% r = guess.x(1:3, :);
-% r_cont_sol = guess.x(1:3, :);
-% v_cont_sol = guess.x(4:6, :);
-% u = guess.u;
-% p = guess.p;
+[t_cont_sol, x_cont_sol, u_cont_sol] = problem.cont_prop(u, p, x0 = x_0_opt);
+
 r_guess = guess.x(1:3, :);
 
 figure
@@ -280,6 +431,64 @@ title("Mass")
 xlabel("Time")
 grid on
 
+
+%% Plot a bunch of solutions
+figure
+for ic = 1 : 20
+    ig = converged_is(round(rand(1) * numel(converged_is)));
+    x = ptr_sols.x(:, :, ig);
+    u = ptr_sols.u(:, :, ig);
+    p = ptr_sols.p(:, ig);
+    
+    i_filter = lambert_filter(ig);
+    ID1 = comb_i.IDs(i_filter);
+    ID2 = comb_i.IDs_1(i_filter);
+    [x_kep_0_ast1, M_ast1, E_ast1, nu_ast1, x_keplerian_ast1, x_cartesian_ast1] = get_asteroid(ID1);
+    [x_kep_0_ast2, M_ast2, E_ast2, nu_ast2, x_keplerian_ast2, x_cartesian_ast2] = get_asteroid(ID2);
+    
+    % Initial conditions
+    t_plot = linspace(0, tf, 100) + t0;
+    x_cartesian_ast1_plot = zeros([6, numel(t_plot)]);
+    x_cartesian_ast2_plot = zeros([6, numel(t_plot)]);
+    for k = 1:numel(t_plot)
+        x_cartesian_ast1_plot(:, k) = x_cartesian_ast1(t_plot(k));
+        x_cartesian_ast2_plot(:, k) = x_cartesian_ast2(t_plot(k));
+    end
+    
+    guess.x = guesses.x(:, :, ig);
+    guess.u = guesses.u(:, :, ig);
+    guess.p = guesses.p(:, ig);
+    
+    problem.x0 = [x_1_AA_filtered(:, ig); m0];
+    problem.xf = x_2_AA_filtered(:, ig);
+    problem.initial_bc = @(x, p) x - problem.x0;
+    problem.terminal_bc = @(x, p, x_ref, p_ref) [x(1:6) - problem.xf; 0];
+    
+    r = x(1:3, :); v = x(4:6, :);
+    
+    x_0_opt = problem.x0;
+    
+    [t_cont_sol, x_cont_sol, u_cont_sol] = problem.cont_prop(u, p, x0 = x_0_opt);
+    r_cont_sol = x_cont_sol(1:3, :);
+    v_cont_sol = x_cont_sol(4:6, :);
+    
+    [t_cont_sol, x_cont_sol, u_cont_sol] = problem.cont_prop(u, p, x0 = x_0_opt);
+    
+    r_guess = guess.x(1:3, :);
+    
+    plot_cartesian_orbit(r_cont_sol(1:3,:)', 'k', 0.4, 1); hold on
+    quiver3(r(1, 1:Nu), r(2, 1:Nu), r(3, 1:Nu), u(1, :), u(2, :), u(3, :), 0.2, "filled", Color = "red")
+    plot_cartesian_orbit(r_guess(1:3,:)', 'g', 0.4, 1); hold on
+    plot_cartesian_orbit(x_cartesian_ast1_plot(1:3, :)', 'b', 0.3, 1)
+    plot_cartesian_orbit(x_cartesian_ast2_plot(1:3, :)', 'cyan', 0.3, 1)
+    scatter3(x_cartesian_ast1_plot(1, 1), x_cartesian_ast1_plot(2, 1), x_cartesian_ast1_plot(3, 1), "green")
+    scatter3(x_cartesian_ast2_plot(1, end), x_cartesian_ast2_plot(2, end), x_cartesian_ast2_plot(3, end), "red")
+end
+plotOrbit3(0, 0, 0, 1, 0, 0 : 0.01 : 2 * pi, "m", 1, 1, [0;0;0], false, 1)
+title('Optimal Asteroid -> Asteroid Transfer Trajectories')
+xlabel('X [AU]'); ylabel('Y [AU]'); zlabel('Z [AU]')
+grid on
+
 %% Compare dV used with rocket equation estimate
 if u_hold == "ZOH"
     dV_cont = sum(vecnorm(u_cont_sol) ./ (x_cont_sol(7, 1 : (end - 1)) * m_star) .* diff(t_cont_sol)' * t_star / 1000 / v_star); % delta V
@@ -287,11 +496,11 @@ elseif u_hold == "FOH"
     dV_cont = sum(((vecnorm(u_cont_sol(:, 1 : (end - 1))) ./ (x_cont_sol(7, 1 : (end - 1)) * m_star) + vecnorm(u_cont_sol(:, 2 : end))) ./ (x_cont_sol(7, 2 : end) * m_star)) / 2 .* diff(t_cont_sol)' * t_star / 1000 / v_star); % delta V
 end
 
-dV_rocket_equation = Isp * g_0 * log(x_0(7) / x(7, end)) / 1000 / v_star;
+dV_rocket_equation = Isp * g_0 * log(problem.x0(7) / x(7, end)) / 1000 / v_star;
 
 rel_dV_error_perc_rocket_equation = (dV_cont - dV_rocket_equation) / dV_cont * 100
 
-low_thrust_over_lambert = dV_rocket_equation / dV_best
+low_thrust_over_lambert = dV_rocket_equation / dV_best_AA_filtered(ig)
 
 
 %% Helper
@@ -425,6 +634,33 @@ function [guess] = lambert_initial_guess(x_1, x_2, v_1_trans, v_2_trans, N_rev, 
     guess.u = u_guess + 1e-5;
 end
 
+function [guess] = lambert_simple_initial_guess(x_1, x_2, v_1_trans, v_2_trans, N_rev, t_k, m_0)
+    % Construct initial guess from lambert solution
+    
+    x_1_trans = [x_1(1:3); v_1_trans];
+    x_2_trans = [x_2(1:3); v_2_trans];
+
+    % Construct transfer orbit
+    [x_1_trans_keplerian, thetastar_1_trans] = cartesian_to_keplerian(x_1_trans, [0; 0; 1], [1; 0; 0], 1);
+    [x_2_trans_keplerian, thetastar_2_trans] = cartesian_to_keplerian(x_2_trans, [0; 0; 1], [1; 0; 0], 1);
+
+    thetastar_trans = linspace(thetastar_1_trans, thetastar_2_trans + 2 * pi * (thetastar_2_trans < thetastar_1_trans) + N_rev * 2 * pi, numel(t_k));
+
+    transfer_cartesian = keplerian_to_cartesian_array(repmat(x_1_trans_keplerian, 1, numel(t_k))', thetastar_trans, 1)';
+
+    %plot3(transfer_cartesian(1, :), transfer_cartesian(2, :), transfer_cartesian(3, :))
+
+    % Approximate controls
+    u_guess = zeros([3, numel(t_k) - 1]); % assume ZOH
+
+    m_guess = zeros([1, numel(t_k)]);
+    m_guess(1:end) = m_0;
+
+    % Package guess
+    guess.x = [transfer_cartesian; m_guess];
+    guess.u = u_guess + 1e-5;
+end
+
 
 function [] = load_lambert()
     dllDirectory_Path = convertStringsToChars(string(cd) + "\LambertSolvers\ivLamV2p41_738416p65617\matlabInterface\lib\");  %at distribution in this file near the driver, otherwise change here.
@@ -442,4 +678,15 @@ end
 
 function [] = unload_lambert()
     iflag= ivLam_unloadDataDLL();
+end
+
+function [x_kep_ast, x_cart_ast] = get_cartesian_states(ast, mu, t)   
+    x_kep_ast = zeros([6, numel(ast.a), numel(t)]);
+    x_cart_ast = zeros([6, numel(ast.a), numel(t)]);
+
+    for i = 1 : numel(t)
+        M_ast = sqrt(mu ./ ast.a .^ 3) * t(i) + ast.M0;
+        x_kep_ast(:, :, i) = [ast.a'; ast.e'; ast.inc'; ast.Omega'; ast.omega'; M_ast'];
+        x_cart_ast(:, :, i) = keplerian_to_cartesian_array(x_kep_ast(:, :, i)', [], mu)';
+    end
 end
