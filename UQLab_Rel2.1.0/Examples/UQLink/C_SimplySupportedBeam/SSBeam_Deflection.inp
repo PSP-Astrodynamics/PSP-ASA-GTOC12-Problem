@@ -1,0 +1,6 @@
+% Input file for the simply supported beam model
+0.15 % b in m
+0.3 % h in m
+5 % L in m
+30000e6 % E in Pa
+10000 % p in N/m

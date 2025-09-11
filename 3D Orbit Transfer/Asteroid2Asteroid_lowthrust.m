@@ -14,10 +14,10 @@ year_to_sec = 86400.0 * 365.25;
 u_max = 0.6; % [N]
 mu = 1;
 mu_dim = mu_star;
-m0 = 3000 / m_star * 0.8;
+m0 = 3000 / m_star * 0.4;
 m_min = 500 / m_star; % dependent on a lot
-t0 = 1.6 * year_to_sec / t_star;
-ToF = 0.6 * year_to_sec / t_star;
+t0 = 13.2 * year_to_sec / t_star;
+ToF = 0.5 * year_to_sec / t_star;
 tf = ToF;
 tf_actual = t0 + ToF;
 N = 15;
@@ -86,7 +86,7 @@ load_lambert()
 %% Lambertify
 ast_data = importdata('GTOC12_Asteroids_Data.txt');
 offset = 2;
-IDs = 1 : 5000;
+IDs = 1 : 4000;
 ast.a = ast_data.data(IDs, offset + 1);
 ast.e = ast_data.data(IDs, offset + 2);
 ast.inc = deg2rad(ast_data.data(IDs, offset + 3));
@@ -257,7 +257,7 @@ ptr_sols_x = {};
 ptr_sols_u = {};
 ptr_sols_p = {};
 converged_is = {};
-batch_size = 100;
+batch_size = 500;
 parfor i = 1 : ceil(n_guesses / batch_size)
     converged_is_batch = zeros([1, batch_size]);
     ptr_sols_batch_x = zeros(nx, N, batch_size); 
@@ -361,7 +361,42 @@ figure
 qqplot(dV_ratio, pd)
 
 %%
-ig = converged_is(5010);
+% Ast1 -> Ast2
+x_1_kep = x_kep_ast(:, comb_i.IDs(lambert_filter), 1);
+x_2_kep = x_kep_ast(:, comb_i.IDs_1(lambert_filter), 2);
+
+dataset_0p5ToF_13p2yr = [];
+dataset_0p5ToF_13p2yr.dV_lambert = dV_best_AA_filtered(converged_is);
+dataset_0p5ToF_13p2yr.dV_lowthrust = dV_rocket_equation;
+dataset_0p5ToF_13p2yr.v1_ast = x_1_AA_filtered(4:6, converged_is);
+dataset_0p5ToF_13p2yr.v2_ast = x_2_AA_filtered(4:6, converged_is); 
+dataset_0p5ToF_13p2yr.v1_lambert = v1_best_AA_filtered(:, converged_is);
+dataset_0p5ToF_13p2yr.v2_lambert = v2_best_AA_filtered(:, converged_is);
+dataset_0p5ToF_13p2yr.dV_ratio = dV_ratio;
+dataset_0p5ToF_13p2yr.ToF = ToF;
+dataset_0p5ToF_13p2yr.t0 = t0;
+dataset_0p5ToF_13p2yr.x_1 = x_1_kep(:, converged_is);
+dataset_0p5ToF_13p2yr.x_2 = x_2_kep(:, converged_is);
+save dataset_0p5ToF_13p2yr_0p4m.mat dataset_0p5ToF_13p2yr
+%%
+%load("dataset_0p8ToF_13p2yr.mat")
+
+%%
+
+figure
+scatter3(dataset_0p5ToF_13p2yr.dV_lambert, dataset_0p5ToF_13p2yr.dV_lowthrust, dataset_0p5ToF_13p2yr.x_1(3,:) + dataset_0p5ToF_13p2yr.x_2(3,:)); hold on
+xlabel("Lambert dV [km / s]")
+ylabel("Low Thrust dV [km / s]")
+title("Low Thrust dV vs Lambert dV")
+subtitle(sprintf("For %.1f Month Asteroid Transfers at Year %.2f", ToF * t_star / year_to_sec * 12, t0 * t_star / year_to_sec))
+grid on
+hold off
+
+%%
+histogram(dataset_0p5ToF_13p2yr.x_1(6,:))
+
+%%
+ig = converged_is(1010);
 x = ptr_sols.x(:, :, ig);
 u = ptr_sols.u(:, :, ig);
 p = ptr_sols.p(:, ig);

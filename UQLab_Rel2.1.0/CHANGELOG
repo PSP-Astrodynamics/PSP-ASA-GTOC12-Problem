@@ -1,0 +1,515 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  UQLab V2.0.0  =>  UQLab V2.1.0    		        %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+*New features*
+- Stochastic simulators
+    - UQLab now supports stochastic simulators, i.e. computational models 
+      that return non-deterministic random responses
+      (Developed by Dr. X. Zhu and documented by Dr. N. Lüthen from ETH Zürich)
+
+- Generalized lambda models
+    - A new module that implements generalized lambda models (GLaM), a 
+      family of stochastic emulators that can surrogate stochastic simulators
+      (Developed by Dr. X. Zhu and documented by Dr. N. Lüthen from ETH Zürich)
+
+- Stochastic polynomial chaos expansions
+    - A new module that implements stochastic polynomial chaos expansions, 
+      a stochastic emulator that can surrogate the beavior of stochastic
+      simulators with multi-modal responses
+      (Developed by Dr. X. Zhu and documented by Dr. N. Lüthen from ETH Zürich)
+	
+- Reliability analysis
+    - A new class of reliability analysis methods relying on line sampling 
+      has been added to the Reliability analysis module
+      (Developed and documented by L. Fritsch from University of Hannover)
+
+
+*Enhancements*
+
+- Kriging/Gaussian process modelling
+    - Trajectory resampling is now available for Kriging
+      (developed and documented by Dr. Moustapha from ETH Zürich)
+
+- Random fields module
+    - Updated handling of conditional random fields at the covariance level
+    - Added support for Kriging-specific resampling tools
+    - Sampling mesh can now also be specified at sampling time (enabling
+      dynamic meshing)
+
+- Statistical inference
+    - NaNs in the inference data, or after marginal processing now cause errors
+
+- Bayesian inversion module
+	- Gelman-Rubin statistics is now automatically calculated
+
+- RBDO
+	- Total number of model evaluations for the construction of the surrogates
+      are now reported in the results
+    - Fixed SLA method not working with multiple constraints
+
+- General - Graphics
+    - Graphics performance significantly improved in several different 
+      scenarios, addressing an issue in Matlab plotting stack when extensive
+      formatting is requested. 
+    - Multiple display functions that still didn't, now return handles to 
+      the figures generated
+
+
+*Changes*
+
+- Active learning reliability
+    - Improved documentation on initial design for ALR
+    - Changed default optimization bounds for Kriging and PC-Kriging to 
+      ensure better stability in the earlier iterations
+    - *Warning: this may affect the performance of existing analyses 
+      relying on default values*
+
+- Bayesian inversion module
+	- Bad chains after post-processing are displayed as a double array, even if a user 
+	defines them as a Boolean array
+
+*Bugfixes*
+
+- Kriging/Gaussian process modelling
+    - Several fixes to the calculation of variance in Kriging regression
+    - Fixed typos in the user manual on regression
+
+- Input
+    - Error messages/handling improved
+    - Triangular distribution now throws an error if the peak is specified
+      outside the input domain
+    - Fixed inconsistency in capitalization of lognormal distributions
+	- Bounds are accepted if contant variables are used
+
+- Sensitivity analysis
+    - Sobol' indices bootstrap-based confidence bounds are now correctly displayed at all 
+     orders and interactions
+
+- Bayesian inversion module
+    - Several bugfixes in the display function, depending on the postprocessing
+     available in the object displayed
+
+- Reliability analysis
+    - Fixed sign of beta in FORM for large failure probabilities
+    - Fixed display issues with 1D subset simulation analysis
+
+- RBDO
+    - Fixed copulas not always being correctly taken into consideration
+
+- PCE
+	- Legend corresponds to the degrees of PCE coefficients when some coefficients are omitted
+
+- Numerous additional minor bugfixes/performance improvements across all the modules
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  UQLabModules V1.4.0   =>  UQLab V2.0.0    		%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+*New features*
+- Random fields module:
+	- A new module for defining, discretizing and sampling random fields
+    (developed and documented by Dr. M. Moustapha from ETH Zurich, based on the work of Dr. N.Fajraoui)
+	- Gaussian, non-Gaussian translation and conditional random fields can be discretized using EOLE or 
+	Karhunen-Loève expansion
+	
+- Stochastic spectral embedding module:
+	- A new module that implements the stochastic spectral embedding (SSE) 
+	surrogate modeling technique 
+	(Developed and documented by Dr. P.-R. Wagner from ETH Zürich)
+
+- Bayesian inversion module:
+	-Two new sampling-free solvers: Spectral likelihood expansion (SLE) and 
+	stochastic spectral likelihood embedding (SSLE)
+	(Developed and documented by Dr. P.-R. Wagner from ETH Zürich)
+
+- Reliability module
+	- Introduced the stochastic spectral embedding-based reliability (SSER) 
+	method
+	(Developed and documented by Dr. P.-R. Wagner from ETH Zürich)
+
+
+*Enhancements*
+
+- Display functions
+	- Many modules can now return figure handles to the created figures when 
+	calling the uq_display function
+
+*Changes*
+- Bayesian inversion module:
+	- The post-processing function uq_postProcessInversion was renamed to 
+	uq_postProcessInversionMCMC. It is called automatically by 
+	uq_postProcessInversion for MCMC-based inversion analyses
+	- The uq_print function now only prints the correlation/covariance matrices 
+	for a maximum of the 6 most important parameters
+	- The uq_display function only shows 10^4 points in the prior and posterior 
+	scatter density plots
+
+
+*Bugfixes*
+- RBDO:
+	- Added constraints in the construction of the augmented space to account 
+	for bounded distributions
+
+- Bayesian inversion module:
+	- The adaptive metropolis algorithm had not been implemented according to 
+	the original publication in Haario et al. (2001). This was fixed.
+
+- Input:
+	- Fixed the incompatibility between the "Support" and "Bounds" options for kernel smoothing
+	- Fixed crash with the calculation of KS statistics
+	- Disregarded sampling constant variables in the uniform space for LHS
+	
+- Sensitivity
+	- Fixed the inconsistenty in the default sampling methods for evaluating the input-output correlation
+	- Corrected the trajectory-based method according to the original publication in Morris (1991)
+	- Fixed the choice of the default stepsize in the perturbation method 
+
+	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  UQLabModules V1.4.0   =>  UQLabModules V1.4.1    %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+*Bugfixes*
+- Reliability:
+	- Fixed the connection of the CMM learning function with PCK and Kriging
+
+- PCE:
+	- Fixed PCE solvers SP and BCS crashing with multi-output models
+	- Significantly improved predictor performance for models with arbitrary 
+	polynomials and KS marginals
+	
+- Inversion:
+	- Fixed crash with kernel-smoothing based priors
+	- Fixed uq_display crash when subsets of the input variables are selected
+
+
+	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  UQLabModules V1.3   =>  UQLabModules V1.4    %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+*New features*
+- PCE:
+  - Added two new sparse solvers, Subspace Pursuit and Bayesian Compressive 
+    Sensing 
+    (developed and documented by N. Lüthen from ETH Zurich)
+ 
+- Reliability:
+  - Introduced a new framework for active learning reliability
+    (developed and documented by Dr. M. Moustapha from ETH Zurich)
+  - Introduced asynchronous learning, a feature that allows users to interrupt 
+    an active learning analysis and run the computational model outside of UQLab/Matlab
+	and then resume the analysis with the new evaluation
+
+- HPC Dispatcher module:
+  - Introduced the HPC Dispatcher module, an interface to dispatch UQLab
+    computations to distributed computing resources
+    (developed and documented Dr. D. Wicaksono from ETH Zurich)
+
+- UQLib:
+  - Introduced uq_map, a tool that automates repeated evaluation of a function 
+    on an array of inputs. Supports distributed execution on remote computing 
+    resources through the new HPC Dispatcher module.
+    (developed and documented by Dr. D. Wicaksono from ETH Zurich)
+
+*Enhancements*
+- Documentation:
+  - Major restructuring of the PCE manual to improve readability
+  - Added description of theory and usage for SP and BCS to the PCE manual
+  - Added description of how to add a custom sparse regression method to the
+    PCE module in the PCE manual
+  - Added section on data groups to the Bayesian inversion manual
+  - Improved explanation of mean prediction/prediction at mean in Bayesian
+    inversion manual
+  - Fixed problems with units in Bayesian inversion manual and some Bayesian
+    inversion examples
+  - Added the Rayleigh distribution to the input manual
+
+- Bayesian inversion:
+  - Allow simultaneous estimation of multiple point estimators (mean, map and 
+    custom)
+
+
+- UQLink:
+  - Added a time stamp option so as to allow for unique IDs for different runs
+    of the same UQLink model
+  
+- Input:
+  - Added the Rayleigh distribution and adapted accordingly the inference and
+    PCE modules
+  - Improved the isoprobabilistic transform for Gaussian and Gamma random
+    variables
+  
+*Changes*
+- PCE:
+  - Solver OMP always adds the constant regressor first
+
+- UQLink:
+  - Auxiliary files are now saved in different folders for each run
+  
+- Bayesian Inversion:
+  - Predictive distributions are now computed on data groups not forward models.
+  
+*Bugfixes*
+- PCE:
+  - Fixed problem in q-norm adaptivity and the finally displayed best q-norm
+  - Fixed centering and weighting for LARS (not relevant for typical use of PCE)
+  - Fixed problem in Laguarre polynomials
+
+- RBDO
+  - Fixed problem related to solving problems with multiple soft constraints
+  
+- Bayesian inversion:
+  - Fixed problem when single forward model was explicitly supplied
+  - Fixed logical issues when repeatedly calling uq_postProcessInversion
+
+- Input:
+  - Fixed the problem related to the inference of Gamma and exponential
+    distributions
+  - Fixed problem when the variance of a random variable is defined as zero
+  - Fixed the problem with evaluating the PDF of logistic distributions
+  
+  
+  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  UQLabModules V1.2.1   =>  UQLabModules V1.3    %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+*New features*
+- Input: 
+  - Introduced new types of copulas 'CVine' and 'DVine'
+  - Introduced possibility to specify inputs with independent sets of random variables
+    (independent blocks) by specifying multiple copulas, one per block
+  - Introduced statistical inference of marginals and of copulas
+  - Introduced copula-based tests of pairwise and multivariate independence
+    (Dr. E. Torre from ETH Zurich)
+
+- Sensitivity analysis
+  - New sample-based estimator for Kucherenko indices (provides compatibility with non-Gaussian copulas)
+  - Borgonovo indices can now be computed from provided samples, no INPUT object required
+
+- Bayesian inversion:
+  - The posterior covariance and correlation matrices are estimated from the MCMC sample
+    by the uq_postProcessInversion function.
+
+- Kriging (Gaussian Process modeling):
+  - Gaussian process (GP) regression for noisy observed responses is now available
+    (Dr. D. Wicaksono from ETH Zurich)
+
+- UQLib:
+  - A collection of standard UQLab plotting and plot formatting functions
+    is now consolidated in 'uq_graphics' inside the 'lib' folder
+    (P. Wiederkehr, P.-R. Wagner, and Dr. D. Wicaksono from ETH Zurich)
+
+- RBDO:
+  - Reliability-based design optimization can now be performed within UQLab
+   (developed and documented by Dr. M. Moustapha from ETH Zurich)
+
+- UQLink
+  - Mathematical expressions with input variables can now be entered in the template
+
+*Changes*
+  - Bayesian inversion:
+    - When the inverse problem is solved using any MCMC solver, the sample is post-processed
+      automatically using the uq_postProcessInversion function.
+
+*Bugfixes*
+  - Kriging:
+    - Fixed problem in CV estimation with number of folds less than N
+      (hold out batch was always reshuffle everytime the CV error function was called)
+    - Fixed problem with the call to the calculation of diagonal of a congruent matrix
+      in the Kriging predictor calculation (u0 matrix was not transposed prior to the call)
+    - Nugget is now not added to the cross-correlation matrix
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  UQLabModules V1.2.0   =>  UQLabModules V1.2.1    %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+*Bugfixes*
+- Fixed compatibility issues with older versions of MATLAB
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  UQLabModules V1.1.0   =>  UQLabModules V1.2.0    %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+*New features*
+- Bayesian inversion:
+  - A new module for solving Bayesian inverse problems is now available
+    (P.-R. Wagner from ETH Zurich)
+
+- UQLib:
+  - A collection of general-purpose open-source libraries (incl. differentiation,
+    optimization, kernel, and input/output processing) is now available
+    and accessible in the 'lib' folder
+    (Dr. M. Moustapha, C. Lataniotis, P. Wiederkehr, and Dr. D. Wicaksono from ETH Zurich)
+
+- Sensitivity analysis module:
+  - Kucherenko and ANCOVA indices are now available
+    (P. Wiederkehr from ETH Zurich)
+
+- PCE module:
+  - Introduced adaptive q-norm truncation for regression-based PCE
+  - Updated the leave-one-out error calculation for LARS
+  - Added bootstrap PCE for local error estimation
+
+- Kriging module:
+  - The evaluation of the correlation function is now based on the general
+    purpose kernel evaluation routines that are provided by UQLib
+
+- SVR module:
+  - The evaluation of the kernel function is now based on the general
+    purpose kernel evaluation routines that are provided by UQLib
+
+- SVC module:
+  - The evaluation of the kernel function is now based on the general
+    purpose kernel evaluation routines that are provided by UQLib
+
+- All metamodel modules:
+  - Added automatic calculation of validation error if a validation set is
+    provided
+
+*Enhancements*
+- uq_gradient is now a vectorized function and part of the new UQLib
+
+- Documentation:
+  - Clear specifications which sensitivity methods are applicable for dependent
+    input variables and which are not
+
+*Changes*
+- Documentation:
+  - Sensitivity user manual: one theory section for all Sobol' indices
+    new function with dependent input variables to showcase new methods
+
+*Bugfixes*
+- UQLink can now handle cases where a command line is given using the full
+  path to the executable that contains white spaces
+- UQLink can now handle properly multiple output files
+- LRA set-up works with constant input variables
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  UQLabModules V1.0.0   =>  UQLabModules V1.1.0    %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+*New features*
+- Metamodeling tool:
+  - Support vector machines for classification (SVC) and regression (SVR) are now
+    available (developed and documented by Dr. M. Moustapha from ETH Zurich)
+
+- UQLink: seamless connection of third-party software to UQLab now available by using 
+  universal "wrapping" of external codes through templates and a mark-up system 
+  (developed and documented by Dr. M. Moustapha from ETH Zurich) 
+
+- Sensitivity analysis module: 
+  - Borgonovo moment-independent indices are now available 
+    (developed and documented by C. Mylonas from ETH Zurich)
+
+- General:
+  - New 'subsampling', 'one hot encoding' & 'cobweb plot' functions in the shared
+    "lib" folder
+  
+*Enhancements*
+- General:
+  - Standardized the examples for improved readability
+
+- Documentation:
+  - Added the outputs of uq_print to all manuals
+  - Added comments on the default values used in the minimal working examples
+  - General readability and consistency improvements
+
+- Reliability analysis module:
+  - AKMCS: 
+	- Added a convergence criterion on beta
+  - IS:
+	- One instrumental density function can now be specified for each model output 
+
+- Sensitivity analysis module:
+  - Removed the requirement for an input object for SRC / Correlation-based
+    sensitivity analyses when a sample is provided
+
+*Changes*
+- General
+  - Changes in uq_display for many modules to optimize readability
+
+- MetaModelling module:
+  - PCE: 
+    - Default degree for Quadrature set equal to 3, for degree-adaptive methods to 1:3
+    - Fixed issues that broke the evaluation of a quadrature PCE for multiple outputs
+      models
+    - Initialization sets the maximum degree either from the provided degree or
+      custom truncation. 
+      If both are provided, the custom truncation will be used.
+    - Stability fixes for arbitrary polynomials (fix for integration waypoints)
+  
+  - Kriging: 
+    - Specification ExpDesign.Sampling = 'user' or 'data' is not
+      necessary anymore when providing the samples manually
+    - Removed ExpDesign.time from results
+    - Moved ExpDesign.muX and .sigmaX from Results to Internal
+
+*Bugfixes*
+- Reliability analysis module:
+  - SORM: can now be run on a pre-existing FORM analysis
+  - IS: Removed warning in initialization if no instrumental density distribution
+    is provided
+
+- Sensitivity analysis module:
+  - Small stability fixes to sensitivity- and PCE- related calculations
+  - Fixed the assembling of the PCE-based Sobol' indices to avoid problems when using
+    constant variables
+  - Fixed LRA-based Sobol' indices to prevent failing for models with multiple outputs
+  - Sobol' indices can be plotted as a pie-diagram
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% UQLabBeta V0.92  => UQLabModules V1.0.0 stable %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Stable release of UQLabModules. 
+
+*New features*
+- MetaModelling tool:
+  - Canonical Low Rank approximations now available (developed and documented by 
+    Dr. K. Konakli and C. Mylonas from ETH Zurich)
+  - Polynomial Chaos-Kriging now available (developed and documented by 
+    Dr. R. Schoebi from ETH Zurich)
+  - Open source release of the scientific code with extensive command-line help 
+    (UQLab Dev Team)
+
+*Enhancements*
+- General:
+  - 'Constant' variables are now supported throughout UQLab modules. Most 
+    algorithms are now aware of constant variables and will exclude them to 
+    improve computational efficiency (UQLab Dev Team)
+
+- Input module:
+  - Several input marginals added to the existing ones (E. Dodoula and 
+    C. Lataniotis)
+
+- Polynomial Chaos Expansions module:
+  - Orthogonal Matching Pursuit added to the regression methods (M. Berchier)
+  - Polynomials orthogonal to arbitrary distributions now available (C. Mylonas)
+
+- Reliability analysis module:
+  - Polynomial Chaos-Kriging can now be used as a metamodel in AK-MCS
+
+- Documentation:
+  - Now available in pdf and html formats in the Doc/Manuals folder, accessible 
+    via the uq_doc function
+
+*Changes*
+- Kriging module:
+  - Default correlation family changed to 'matern-5_2'
+  - Covariance matrix of the predictor is now available as the third output of 
+    uq_evalModel
+
+- Polynomial Chaos Expansions module:
+  - Default quadrature scheme changed to 'Full' when input dimension < 4 (cheaper)
+
+- Input module: 
+  - Changed handling of custom distributions
+
+*Bug fixes*
+  - General bugfixes and performance improvements across modules w.r.t. V0.92
