@@ -16,8 +16,8 @@ mu = 1;
 mu_dim = mu_star;
 m0 = 3000 / m_star;
 m_min = 500 / m_star; % dependent on a lot
-tf = 3.1 * year_to_sec / t_star;
-N = 25;
+tf = 2 * year_to_sec / t_star;
+N = 15;
 
 %% Calculate max dV possible for continuous max thrust (ignoring external forces)
 Isp = 4000; % [s]
@@ -43,7 +43,7 @@ x_kep_earth = [a_earth; e_earth; inc_earth; Omega_earth; omega_earth; M_earth0];
 %% Asteroid data
 y=importdata('GTOC12_Asteroids_Data.txt');
 
-multiplier = 2;
+multiplier = 1;
 
 %[v, i] = max(y.data(:, 3))
 % 
@@ -55,7 +55,7 @@ multiplier = 2;
 load_lambert()
 
 guesses = {};
-for AST = 1 : 1
+for AST = 533 : 533 % 368 533 995 810
 
 offset = 2;
 a_ast = y.data(AST, offset + 1);
@@ -85,17 +85,17 @@ tspan = [0, tf];
 t_k = linspace(tspan(1), tspan(2), N);
 delta_t = t_k(2) - t_k(1);
 
-u_hold = "ZOH";
+u_hold = "FOH";
 Nu = (u_hold == "ZOH") * (N - 1) + (u_hold == "FOH") * N;
 
-parser = "CVX";
+parser = "CVXPyGEN";
 nx = 7;
 nu = 3;
 np = 3;
 
 initial_guess = "Lambert"; % "straight line" or "Lambert"
 
-ptr_ops.iter_max = 30;
+ptr_ops.iter_max = 10;
 ptr_ops.iter_min = 2;
 ptr_ops.Delta_min = 5e-3;
 ptr_ops.w_vc = 1e2;
@@ -144,13 +144,13 @@ if initial_guess == "straight line"
     guess.u = interp1(tspan, ones(3, 2)' * 1e-5, t_k(1:Nu))';
     guess.p = [0; 0; 0];
 elseif initial_guess == "Lambert"
-    tofs = [1 : 0.01 : 8]' * year_to_sec / t_star;
+    tofs = [0.6 : 0.01 : 2]' * year_to_sec / t_star;
     P_earth = 2 * pi *sqrt(a_earth ^ 3 / mu);
     P_ast = 2 * pi * sqrt(a_ast ^ 3 / mu);
     N_guess = tf / ((P_earth + P_ast) / 2);
-    % for i = 1 : numel(tofs)
-    %     x_f_tofs(:, i) = x_cartesian_ast(tofs(i));
-    % end
+    for i = 1 : numel(tofs)
+        x_f_tofs(:, i) = x_cartesian_ast(tofs(i));
+    end
     %[v1_best, v2_best, dV_best, ToF_best, N_best, direction_best] = best_lambert(repmat(x_0(1:6), 1, numel(tofs)), x_f_tofs, tofs, [floor(N_guess), ceil(N_guess)], 6 / v_star, 0);
     [v1_lamb, v2_lamb, dV_lamb, N_lamb] = best_lambert_thruN(repmat(x_0(1:6), 1, numel(tofs)), x_f_tofs, tofs, ceil(N_guess), 6 / v_star, 0);
 
@@ -160,24 +160,24 @@ elseif initial_guess == "Lambert"
 
 
     [~, best_i] = min(dV_lamb * multiplier - dV_max);
-    if dV_lamb(best_i) * multiplier < dV_max(best_i)
-        best_i = find(dV_lamb * multiplier < dV_max, 1, "first");
-    end
+    % if dV_lamb(best_i) * multiplier < dV_max(best_i)
+    %     best_i = find(dV_lamb * multiplier < dV_max, 1, "first");
+    % end
     dV_best = dV_lamb(best_i);
     v1_best = v1_lamb(:, best_i);
     v2_best = v2_lamb(:, best_i);
-    N_best = N_lamb(best_i) + 1;
+    N_best = N_lamb(best_i);% + 1; % don't want to have to manually add...
     ToF_best = tofs(best_i);
-
-    figure
-    plot(tofs * t_star / year_to_sec, dV_lamb * v_star * multiplier); hold on
-    plot(tofs * t_star / year_to_sec, dV_max * v_star)
-    plot(tofs * t_star / year_to_sec, dV_lamb * multiplier - dV_max)
-    xline(ToF_best * t_star / year_to_sec); hold off
-    title("Lambert delta V vs ToF")
-    xlabel("Time of Flight [yr]")
-    ylabel("Lambert Delta V [km / s]")
-    grid on
+    % 
+    % figure
+    % plot(tofs * t_star / year_to_sec, dV_lamb * v_star * multiplier); hold on
+    % plot(tofs * t_star / year_to_sec, dV_max * v_star)
+    % plot(tofs * t_star / year_to_sec, dV_lamb * multiplier - dV_max)
+    % xline(ToF_best * t_star / year_to_sec); hold off
+    % title("Lambert delta V vs ToF")
+    % xlabel("Time of Flight [yr]")
+    % ylabel("Lambert Delta V [km / s]")
+    % grid on
 
     tf = ToF_best;
     x_f = x_cartesian_ast(tf);
@@ -189,7 +189,7 @@ elseif initial_guess == "Lambert"
     if dV_best * multiplier > dV_max(best_i)
         warning("WARNING: Lambert delta V %.1f%% greater than estimated max low thrust delta V", (dV_best - dV_max(best_i)) / dV_max(best_i) * 100)
         %error("WARNING: Lambert delta V %.1f%% greater than estimated max low thrust delta V", (dV_best - dV_max) / dV_max * 100)
-        %continue
+        continue
     else 
         fprintf("Candidate: %g ID with %.1f%% less than estimated max low thrust delta V \n", AST, (dV_max(best_i) - dV_best) / dV_max(best_i) * 100)
         %continue
@@ -215,7 +215,7 @@ unload_lambert()
 
 terminal_bc = @(x, p, x_ref, p_ref) [x(1:6) - x_f; 0];
 
-problem = DeterministicProblem(x_0, x_f, N, u_hold, tf, f, guess, convex_constraints, min_fuel_objective, scale = scale, initial_bc = initial_bc, terminal_bc = terminal_bc, integration_tolerance = 1e-12, discretization_method = "error", N_sub = 1);
+problem = DeterministicProblem(x_0, x_f, N, u_hold, tf, f, guess, convex_constraints, min_fuel_objective, scale = scale, initial_bc = initial_bc, terminal_bc = terminal_bc, integration_tolerance = 1e-12, discretization_method = "errorRK4_kepler_fixedtf", N_sub = 1, Name = "Earth2Ast_fixed");
 
 [problem, Delta_disc] = problem.discretize(guess.x, guess.u, guess.p);
 ptr_sol = ptr(problem, ptr_ops, parser);

@@ -4,9 +4,8 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>24858c5c-592d-4fec-9fed-f01cf5844c25</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>Ast2Ast_fixed_FOH.py</StartupFile>
-    <SearchPath>
-    </SearchPath>
+    <StartupFile>Earth2Ast_fixed_FOH.py</StartupFile>
+    <SearchPath>..\LowThrustGTOC12</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>LowThrustGTOC12</Name>
@@ -22,6 +21,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Ast2Ast_fixed_FOH.py" />
+    <Compile Include="Earth2Ast_fixed_FOH.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

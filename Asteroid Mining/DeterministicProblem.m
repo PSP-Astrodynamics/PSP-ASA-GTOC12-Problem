@@ -132,7 +132,8 @@ classdef DeterministicProblem
                 if prob.u_hold == "ZOH"
                    error("Kepler Fixed tf RK4 error discretization for ZOH not implemented")
                 elseif prob.u_hold == "FOH"
-                   [prob.disc.A_k, prob.disc.B_plus_k, prob.disc.B_minus_k, prob.disc.E_k, prob.disc.c_k, Delta] = discretize_error_dynamics_FOH_kepler_fixedtf_mex(prob.N, [0, prob.tf], x_ref, u_ref, p_ref);
+                   [prob.disc.A_k, prob.disc.B_plus_k, prob.disc.B_minus_k, prob.disc.E_k, prob.disc.c_k, Delta] = discretize_error_dynamics_FOH_kepler_fixedtf_mex(prob.N, [0, prob.tf], x_ref, u_ref, zeros([0, 1]));
+                   prob.disc.E_k = zeros([prob.n.x, prob.n.p, prob.N - 1]);
                 end
             elseif prob.discretization_method == "errorRKV65"
                 if prob.u_hold == "ZOH"
