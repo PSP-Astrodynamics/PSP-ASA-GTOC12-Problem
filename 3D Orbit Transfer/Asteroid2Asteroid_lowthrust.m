@@ -79,8 +79,6 @@ else
 end
 
 %% Asteroid data
-y=importdata('GTOC12_Asteroids_Data.txt');
-
 load_lambert()
 
 %% Lambertify

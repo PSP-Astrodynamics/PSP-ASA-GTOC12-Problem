@@ -55,7 +55,7 @@ multiplier = 1;
 load_lambert()
 
 guesses = {};
-for AST = 533 : 533 % 368 533 995 810
+for AST = 16699 : 16699 % 368 533 995 810
 
 offset = 2;
 a_ast = y.data(AST, offset + 1);
@@ -127,6 +127,7 @@ if u_hold == "ZOH"
 else
     min_fuel_objective = @(x, u, p, x_ref, u_ref, p_ref) alpha / m_star * t_star * sum((norms(u(1:3, 1:(end - 1)), 2, 1) + norms(u(1:3, 2:end), 2, 1)) / 2) * delta_t;
 end
+x_f_tofs = [];
 
 if initial_guess == "straight line"
     P_earth = 2 * pi *sqrt(a_earth ^ 3 / mu);
@@ -144,7 +145,8 @@ if initial_guess == "straight line"
     guess.u = interp1(tspan, ones(3, 2)' * 1e-5, t_k(1:Nu))';
     guess.p = [0; 0; 0];
 elseif initial_guess == "Lambert"
-    tofs = [0.6 : 0.01 : 2]' * year_to_sec / t_star;
+    %tofs = [0.6 : 0.01 : 2]' * year_to_sec / t_star;
+    tofs = 1.3 * year_to_sec / t_star;
     P_earth = 2 * pi *sqrt(a_earth ^ 3 / mu);
     P_ast = 2 * pi * sqrt(a_ast ^ 3 / mu);
     N_guess = tf / ((P_earth + P_ast) / 2);

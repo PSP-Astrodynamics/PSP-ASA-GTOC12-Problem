@@ -55,6 +55,8 @@ for i = 1:(ptr_ops.iter_max)
             
             [x_ref(:, :, i + 1), u_ref(:, :, i + 1), p_ref(:, i + 1), sol_info, problem] = solve_ptr_convex_subproblem_CVXPY(prob, ptr_ops, x_ref(:, :, i), u_ref(:, :, i), p_ref(:, i), problem);
 
+            % [x_ref2, u_ref2, p_ref2, sol_info2, problem2] = solve_ptr_convex_subproblem_CVXPyGEN(prob, ptr_ops, x_ref(:, :, i), u_ref(:, :, i), p_ref(:, i), problem);
+
             %figure
             %comparison_plot_3DoF_trajectory({x_ref(:, :, i + 1), x_ref_CVX}, ["CVXPY", "CVX"], prob.params(4))
         elseif parser == "CVXPyGEN"

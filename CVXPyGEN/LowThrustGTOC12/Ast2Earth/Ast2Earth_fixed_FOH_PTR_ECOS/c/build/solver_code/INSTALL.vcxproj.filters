@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\build\CMakeFiles\de9f806b94fc3bd886e944241d66806e\INSTALL_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{3682EE8B-7965-3EB8-B9B1-1EC4F9B2E3E4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
