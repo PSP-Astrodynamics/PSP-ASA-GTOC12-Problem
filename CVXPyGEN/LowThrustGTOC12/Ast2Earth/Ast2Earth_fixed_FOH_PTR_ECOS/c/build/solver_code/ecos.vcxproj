@@ -1,0 +1,369 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|x64">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|x64">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{8B00CD36-83B0-3805-9EB6-4EA7548B4A1B}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.22621.0</WindowsTargetPlatformVersion>
+    <Platform>x64</Platform>
+    <ProjectName>ecos</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\build\out\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ecos.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ecos</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\build\out\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ecos.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ecos</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\build\out\MinSizeRel\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">ecos.dir\MinSizeRel\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">ecos</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\build\out\RelWithDebInfo\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">ecos.dir\RelWithDebInfo\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">ecos</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</GenerateManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\amd\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\ldl\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\SuiteSparse_config;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>EnableAllWarnings</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;CTRLC=1;LDL_LONG;DLONG;CMAKE_INTDIR="Debug";ecos_EXPORTS</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;CTRLC=1;LDL_LONG;DLONG;CMAKE_INTDIR=\"Debug\";ecos_EXPORTS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\amd\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\ldl\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\SuiteSparse_config;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\amd\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\ldl\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\SuiteSparse_config;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/Users/thatf/OneDrive/Documents/ASA/PSP-ASA-GTOC12-Problem/CVXPyGEN/LowThrustGTOC12/Ast2Earth_fixed_FOH_PTR_ECOS/c/build/out/Debug/ecos.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/thatf/OneDrive/Documents/ASA/PSP-ASA-GTOC12-Problem/CVXPyGEN/LowThrustGTOC12/Ast2Earth_fixed_FOH_PTR_ECOS/c/build/out/Debug/ecos.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\amd\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\ldl\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\SuiteSparse_config;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CTRLC=1;LDL_LONG;DLONG;CMAKE_INTDIR="Release";ecos_EXPORTS</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CTRLC=1;LDL_LONG;DLONG;CMAKE_INTDIR=\"Release\";ecos_EXPORTS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\amd\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\ldl\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\SuiteSparse_config;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\amd\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\ldl\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\SuiteSparse_config;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/Users/thatf/OneDrive/Documents/ASA/PSP-ASA-GTOC12-Problem/CVXPyGEN/LowThrustGTOC12/Ast2Earth_fixed_FOH_PTR_ECOS/c/build/out/Release/ecos.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/thatf/OneDrive/Documents/ASA/PSP-ASA-GTOC12-Problem/CVXPyGEN/LowThrustGTOC12/Ast2Earth_fixed_FOH_PTR_ECOS/c/build/out/Release/ecos.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\amd\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\ldl\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\SuiteSparse_config;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CTRLC=1;LDL_LONG;DLONG;CMAKE_INTDIR="MinSizeRel";ecos_EXPORTS</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CTRLC=1;LDL_LONG;DLONG;CMAKE_INTDIR=\"MinSizeRel\";ecos_EXPORTS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\amd\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\ldl\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\SuiteSparse_config;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\amd\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\ldl\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\SuiteSparse_config;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/Users/thatf/OneDrive/Documents/ASA/PSP-ASA-GTOC12-Problem/CVXPyGEN/LowThrustGTOC12/Ast2Earth_fixed_FOH_PTR_ECOS/c/build/out/MinSizeRel/ecos.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/thatf/OneDrive/Documents/ASA/PSP-ASA-GTOC12-Problem/CVXPyGEN/LowThrustGTOC12/Ast2Earth_fixed_FOH_PTR_ECOS/c/build/out/MinSizeRel/ecos.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\amd\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\ldl\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\SuiteSparse_config;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CTRLC=1;LDL_LONG;DLONG;CMAKE_INTDIR="RelWithDebInfo";ecos_EXPORTS</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CTRLC=1;LDL_LONG;DLONG;CMAKE_INTDIR=\"RelWithDebInfo\";ecos_EXPORTS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\amd\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\ldl\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\SuiteSparse_config;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\amd\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\ldl\include;C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\SuiteSparse_config;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/Users/thatf/OneDrive/Documents/ASA/PSP-ASA-GTOC12-Problem/CVXPyGEN/LowThrustGTOC12/Ast2Earth_fixed_FOH_PTR_ECOS/c/build/out/RelWithDebInfo/ecos.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/thatf/OneDrive/Documents/ASA/PSP-ASA-GTOC12-Problem/CVXPyGEN/LowThrustGTOC12/Ast2Earth_fixed_FOH_PTR_ECOS/c/build/out/RelWithDebInfo/ecos.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\CMakeLists.txt">
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule C:/Users/thatf/OneDrive/Documents/ASA/PSP-ASA-GTOC12-Problem/CVXPyGEN/LowThrustGTOC12/Ast2Earth_fixed_FOH_PTR_ECOS/c/solver_code/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/thatf/OneDrive/Documents/ASA/PSP-ASA-GTOC12-Problem/CVXPyGEN/LowThrustGTOC12/Ast2Earth_fixed_FOH_PTR_ECOS/c -BC:/Users/thatf/OneDrive/Documents/ASA/PSP-ASA-GTOC12-Problem/CVXPyGEN/LowThrustGTOC12/Ast2Earth_fixed_FOH_PTR_ECOS/c/build --check-stamp-file C:/Users/thatf/OneDrive/Documents/ASA/PSP-ASA-GTOC12-Problem/CVXPyGEN/LowThrustGTOC12/Ast2Earth_fixed_FOH_PTR_ECOS/c/build/solver_code/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Program Files\CMake\share\cmake-3.24\Modules\CMakePackageConfigHelpers.cmake;C:\Program Files\CMake\share\cmake-3.24\Modules\GNUInstallDirs.cmake;C:\Program Files\CMake\share\cmake-3.24\Modules\WriteBasicConfigVersionFile.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\build\solver_code\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/Users/thatf/OneDrive/Documents/ASA/PSP-ASA-GTOC12-Problem/CVXPyGEN/LowThrustGTOC12/Ast2Earth_fixed_FOH_PTR_ECOS/c/solver_code/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/thatf/OneDrive/Documents/ASA/PSP-ASA-GTOC12-Problem/CVXPyGEN/LowThrustGTOC12/Ast2Earth_fixed_FOH_PTR_ECOS/c -BC:/Users/thatf/OneDrive/Documents/ASA/PSP-ASA-GTOC12-Problem/CVXPyGEN/LowThrustGTOC12/Ast2Earth_fixed_FOH_PTR_ECOS/c/build --check-stamp-file C:/Users/thatf/OneDrive/Documents/ASA/PSP-ASA-GTOC12-Problem/CVXPyGEN/LowThrustGTOC12/Ast2Earth_fixed_FOH_PTR_ECOS/c/build/solver_code/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Program Files\CMake\share\cmake-3.24\Modules\CMakePackageConfigHelpers.cmake;C:\Program Files\CMake\share\cmake-3.24\Modules\GNUInstallDirs.cmake;C:\Program Files\CMake\share\cmake-3.24\Modules\WriteBasicConfigVersionFile.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\build\solver_code\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule C:/Users/thatf/OneDrive/Documents/ASA/PSP-ASA-GTOC12-Problem/CVXPyGEN/LowThrustGTOC12/Ast2Earth_fixed_FOH_PTR_ECOS/c/solver_code/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/thatf/OneDrive/Documents/ASA/PSP-ASA-GTOC12-Problem/CVXPyGEN/LowThrustGTOC12/Ast2Earth_fixed_FOH_PTR_ECOS/c -BC:/Users/thatf/OneDrive/Documents/ASA/PSP-ASA-GTOC12-Problem/CVXPyGEN/LowThrustGTOC12/Ast2Earth_fixed_FOH_PTR_ECOS/c/build --check-stamp-file C:/Users/thatf/OneDrive/Documents/ASA/PSP-ASA-GTOC12-Problem/CVXPyGEN/LowThrustGTOC12/Ast2Earth_fixed_FOH_PTR_ECOS/c/build/solver_code/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Program Files\CMake\share\cmake-3.24\Modules\CMakePackageConfigHelpers.cmake;C:\Program Files\CMake\share\cmake-3.24\Modules\GNUInstallDirs.cmake;C:\Program Files\CMake\share\cmake-3.24\Modules\WriteBasicConfigVersionFile.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\build\solver_code\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule C:/Users/thatf/OneDrive/Documents/ASA/PSP-ASA-GTOC12-Problem/CVXPyGEN/LowThrustGTOC12/Ast2Earth_fixed_FOH_PTR_ECOS/c/solver_code/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/thatf/OneDrive/Documents/ASA/PSP-ASA-GTOC12-Problem/CVXPyGEN/LowThrustGTOC12/Ast2Earth_fixed_FOH_PTR_ECOS/c -BC:/Users/thatf/OneDrive/Documents/ASA/PSP-ASA-GTOC12-Problem/CVXPyGEN/LowThrustGTOC12/Ast2Earth_fixed_FOH_PTR_ECOS/c/build --check-stamp-file C:/Users/thatf/OneDrive/Documents/ASA/PSP-ASA-GTOC12-Problem/CVXPyGEN/LowThrustGTOC12/Ast2Earth_fixed_FOH_PTR_ECOS/c/build/solver_code/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Program Files\CMake\share\cmake-3.24\Modules\CMakePackageConfigHelpers.cmake;C:\Program Files\CMake\share\cmake-3.24\Modules\GNUInstallDirs.cmake;C:\Program Files\CMake\share\cmake-3.24\Modules\WriteBasicConfigVersionFile.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\build\solver_code\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\SuiteSparse_config\SuiteSparse_config.h" />
+    <ClInclude Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\include\cone.h" />
+    <ClInclude Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\include\ctrlc.h" />
+    <ClInclude Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\include\data.h" />
+    <ClInclude Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\include\ecos.h" />
+    <ClInclude Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\include\ecos_bb.h" />
+    <ClInclude Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\include\equil.h" />
+    <ClInclude Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\include\expcone.h" />
+    <ClInclude Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\include\glblopts.h" />
+    <ClInclude Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\include\kkt.h" />
+    <ClInclude Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\include\spla.h" />
+    <ClInclude Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\include\splamm.h" />
+    <ClInclude Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\include\timer.h" />
+    <ClInclude Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\include\wright_omega.h" />
+    <ClCompile Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\amd\src\amd_1.c" />
+    <ClCompile Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\amd\src\amd_2.c" />
+    <ClCompile Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\amd\src\amd_aat.c" />
+    <ClCompile Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\amd\src\amd_control.c" />
+    <ClCompile Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\amd\src\amd_defaults.c" />
+    <ClCompile Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\amd\src\amd_dump.c" />
+    <ClCompile Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\amd\src\amd_global.c" />
+    <ClCompile Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\amd\src\amd_info.c" />
+    <ClCompile Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\amd\src\amd_order.c" />
+    <ClCompile Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\amd\src\amd_post_tree.c" />
+    <ClCompile Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\amd\src\amd_postorder.c" />
+    <ClCompile Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\amd\src\amd_preprocess.c" />
+    <ClCompile Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\amd\src\amd_valid.c" />
+    <ClCompile Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\external\ldl\src\ldl.c" />
+    <ClCompile Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\src\cone.c" />
+    <ClCompile Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\src\ctrlc.c" />
+    <ClCompile Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\src\ecos.c" />
+    <ClCompile Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\src\equil.c" />
+    <ClCompile Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\src\expcone.c" />
+    <ClCompile Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\src\kkt.c" />
+    <ClCompile Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\src\preproc.c" />
+    <ClCompile Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\src\spla.c" />
+    <ClCompile Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\src\splamm.c" />
+    <ClCompile Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\src\timer.c" />
+    <ClCompile Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\src\wright_omega.c" />
+    <ClCompile Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\ecos_bb\ecos_bb.c" />
+    <ClCompile Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\solver_code\ecos_bb\ecos_bb_preproc.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\CVXPyGEN\LowThrustGTOC12\Ast2Earth_fixed_FOH_PTR_ECOS\c\build\ZERO_CHECK.vcxproj">
+      <Project>{6DDFE813-8C02-3D3D-BFF0-57837483D2CC}</Project>
+      <Name>ZERO_CHECK</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

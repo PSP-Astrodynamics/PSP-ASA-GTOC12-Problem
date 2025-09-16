@@ -1,0 +1,56 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% AAE 590ACA
+% Stochastic SCP Rocket Landing Project
+% Author: Travis Hastreiter 
+% Created On: 6 April, 2025
+% Description: 3DoF rocket landing dynamics with changing mass
+% Most Recent Change: 6 April, 2025
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+mu = 1;
+Isp = 4000; % [s]
+g_0 = 9.80665; % [m / s2]
+alpha = 1 / (Isp * g_0); % [s / m]
+
+mu_star = 1.32712440018e11; % [km3 / s2]
+l_star = 1.49579151285e8; % [km] one AU
+m_star = 3000; % [kg]
+a_star = mu_star / l_star ^ 2; % [km / s2]
+t_star = sqrt(l_star ^ 3 / mu_star);
+
+m_to_km = 1e-3;
+
+t = sym("t");
+r = sym("r", [3, 1]);
+v = sym("v", [3, 1]);
+m = sym("m", [1, 1]);
+x = [r;v;m];
+
+T = sym("T");
+alpha = sym("alpha");
+beta = sym("beta");
+u = [T; alpha; beta]; % [N] = [kg m / s2]
+p = sym("p", [0, 1]);
+
+thrust = T * [; cos(alpha); cos(beta)]
+
+rdot = v;
+vdot = -mu/sqrt(r(1)^2+r(2)^2+r(3)^2)^3*r + thrust * m_to_km / (m * m_star) / a_star;
+mdot = -alpha * T / m_star * t_star;
+
+xdot = [rdot; vdot; mdot];
+
+% Create equations of motion function for optimizer
+matlabFunction(xdot,"File","f_kepler_fixedtf_alphabeta","Vars", [{t}; {x}; {u}; {p}]);
+
+% Create equations of motion block for Simulink model
+%matlabFunctionBlock('EoM_3DoF/SymDynamics3DoF',xdot,'Vars',[x; u; mass; L; I])
+
+% Create Jacobian functions
+j_a = jacobian(xdot, x);
+j_b = jacobian(xdot, u);
+j_e = jacobian(xdot, p);
+
+matlabFunction(j_a,"File","A_kepler_fixedtf_alphabeta","Vars",[{t}; {x}; {u}; {p}]);
+matlabFunction(j_b,"File","B_kepler_fixedtf_alphabeta","Vars",[{t}; {x}; {u}; {p}]);
+matlabFunction(j_e,"File","S_kepler_fixedtf_alphabeta","Vars",[{t}; {x}; {u}; {p}]);

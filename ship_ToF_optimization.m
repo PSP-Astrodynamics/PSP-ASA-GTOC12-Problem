@@ -1,0 +1,390 @@
+%[text] # Ship Time of Flight Optimization
+%[text] Idea: set up quadratically constrained linear program to (iteratively) solve for the best times of flights for a ship or set of ships. If quadratic constraints are positive semidefinite then it can be converted into a SOCP... probably indefinite though
+% Start with a self cleaning ship for simplicity
+asteroid_IDs = [1, 20, 33];
+n_A = numel(asteroid_IDs);
+route = [shuffle(asteroid_IDs), shuffle(asteroid_IDs)] %[output:2115606f]
+
+n_seg = numel(route) - 1; % Number of segments
+N = 1; % Number of ships
+%[text] ## Asteroid Data
+ast_data = importdata('GTOC12_Asteroids_Data.txt');
+mu = 1;
+ast_cart_funcs = get_asteroid_cartesian_orbits(ast_data, route, mu);
+%%
+%[text] ## Problem Data
+% Nondimensionalization
+AU = 1.49579151285e8;
+mu_star = 1.32712440018e11; % [km3 / s2]
+l_star = AU; % [km] one AU
+m_star = 3000; % [kg] - max initial ship mass
+a_star = mu_star / l_star ^ 2; % [km / s2]
+t_star = sqrt(l_star ^ 3 / mu_star);
+v_star = sqrt(mu_star/l_star);
+
+year_to_sec = 86400.0 * 365.25; % [s / year]
+
+mu = 1;
+mu_dim = mu_star;
+
+% Ship data
+u_max = 0.6; % [N]
+m0_max = 3000 / m_star;
+m_dry = 500 / m_star;
+
+% Mining data
+k_dim = 10; % [kg / year] mining rate of asteroids
+k = k_dim / m_star / year_to_sec * t_star;
+I_max = 20; % max number of miners
+I_mass = 40 / m_star; % mass of miner
+
+% Number of mining ships allowed
+N_min = @(m_ast_avg) min(100, 2 * exp(0.004 * m_ast_avg));
+%%
+%[text] ## Construct Problem
+% Create guess
+six_months = 0.5 * year_to_sec / t_star;
+ToF_guess = [0.5; 0.5; 3; 0.5; 0.5] * year_to_sec / t_star;
+m0_guess = m0_max * ones([N, 1]);
+
+x1_guess = zeros([6, n_seg]);
+x2_guess = zeros([6, n_seg]);
+times = zeros(2, n_seg);
+for i = 1 : n_seg
+    times(1, i) = sum(ToF_guess(1 : (i - 1)));
+    x1_guess(:, i) = ast_cart_funcs{i}(times(1, i));
+    times(2, i) = sum(ToF_guess(1 : i));
+    x2_guess(:, i) = ast_cart_funcs{i + 1}(times(2, i));
+end
+%%
+
+% Create dV func and derivatives
+ToF_sym = sym("ToF", [n_seg, 1]);
+m0_sym = sym("m0", [1, 1]);
+v1_sym = sym("v1", [3, 1]);
+v2_sym = sym("v2", [3, 1]);
+
+function [dV] = dV_func(ToFs, v1, v2, ast_cart_funcs, i)
+    x1_cart = ast_cart_funcs{i}(sum(ToFs(1 : (i - 1))));
+    x2_cart = ast_cart_funcs{i + 1}(sum(ToFs(1 : i)));
+    
+    %dV = sqrt(sum((x1_cart(4 : 6) - v1) .^ 2)) + sqrt(sum((x2_cart(4 : 6) - v2) .^ 2));
+    dV = norm(x1_cart(4 : 6) - v1) + norm(x2_cart(4 : 6) - v2);
+end
+
+function [dV] = dV_func_differentiable(v1, v2, vb1, vb2)
+    dV = sqrt(sum((vb1 - v1) .^ 2)) + sqrt(sum((vb2 - v2) .^ 2));
+end
+
+dV_jacobian(ToF_guess, [1;1;1], [2;2;2], ast_cart_funcs, 2, n_seg)
+
+function [ddVdvvb, dzdToFs, dvbdToFs] = dV_jacobian(ToFs, v1, v2, ast_cart_funcs, i, n_seg)
+    x1_cart = ast_cart_funcs{i}(sum(ToFs(1 : (i - 1))));
+    x2_cart = ast_cart_funcs{i + 1}(sum(ToFs(1 : i)));
+
+    ToF_sym = sym("ToF", [n_seg, 1]);
+    m0_sym = sym("m0", [1, 1]);
+    v1_sym = sym("v1", [3, 1]);
+    v2_sym = sym("v2", [3, 1]);
+    vb1_sym = sym("vb1", [3, 1]);
+    vb2_sym = sym("vb2", [3, 1]);
+
+    ddVdp = jacobian(dV_func_differentiable(v1_sym, v2_sym, vb1_sym, vb2_sym), [v1_sym; v2_sym]);
+    ddVdvb = jacobian(dV_func_differentiable(v1_sym, v2_sym, vb1_sym, vb2_sym), [vb1_sym; vb2_sym]);
+    
+    ddVdvvb = [ddVdp; ddVdvb];
+
+    d2dVdv2 = hessian(dV_func_differentiable(v1_sym, v2_sym, vb1_sym, vb2_sym), [v1_sym; v2_sym; vb1_sym; vb2_sym]);
+
+
+    dvbdT = [accel(x1_cart(1 : 3)); accel(x2_cart(1 : 3))];
+    dTdToF_im1 = T_der_wrt_ToF(n_seg, i - 1);
+    dTdToF_i = T_der_wrt_ToF(n_seg, i);
+
+
+    dvbdToFs = dvbdT .* [dTdToF_im1; dTdToF_i];
+
+    dzdToFs = [x1_cart(4 : 6) * dTdToF_im1; x2_cart(4 : 6) * dTdToF_i; dToFdToFs];
+end
+
+% function [jac_func] = dV_jacobian(ToFs, v1, v2, ast_cart_funcs, i)
+%     x1_cart = ast_cart_funcs{i}(sum(ToFs(1 : (i - 1))));
+%     x2_cart = ast_cart_funcs{i + 1}(sum(ToFs(1 : i)));
+% 
+%     ddV1dv1 = -(x1_cart(4 : 6) - v1)' / norm((x1_cart(4 : 6) - v1));
+%     ddV1dT = (x1_cart(4 : 6) - v1)' / norm((x1_cart(4 : 6) - v1)) * accel(x1_cart(1 : 3));
+% 
+%     ddV2dv2 = -(x2_cart(4 : 6) - v2)' / norm((x2_cart(4 : 6) - v2));
+%     ddV2dT = (x2_cart(4 : 6) - v2)' / norm((x2_cart(4 : 6) - v2)) * accel(x2_cart(1 : 3));
+% 
+%     jac_func = @() [ddV1dv1, ddV2dv2, ddV1dT + ddV2dT];
+% end
+
+function [hess_func] = dV_hessian() 
+    
+end
+
+for i = 1 : n_seg
+    ddvdp(i) = {@(ToF, v1, v2) dV_jacobian(ToF, v1, v2)};
+    % 
+    % hess_func = matlabFunction(hessian(dV_func(ToF_sym, v1_sym, v2_sym, ast_cart_funcs, i)), "Vars", [{ToF_sym}; {v1_sym}; {v2_sym}]);
+    % hess(i) = {@(t) hess_func()};
+end
+
+% Find dV, sensitivities for asteroids using ivLam2
+v1_assist = 0; % For launch vehicle boost when leaving Earth
+v2_assist = 0; % For acceptable relative velocity when coming back to Earth
+N_max = 10; % Max revolutions for an orbit
+[v1, v2, dV, N, dpdz, d2pdz2] = best_lambert_with_sensitivities(x1_guess, x2_guess, ToF_guess, N_max, v1_assist, v2_assist);
+
+% Find dV using low thrust
+%Asteroid2Asteroid_lowthrust();
+[ddVdvvb, d2dVdvvb2, dzdToFs, dvbdToFs] = dV_jacobian(ToF_guess, v1, v2, ast_cart_funcs, i, n_seg)
+dvdToFs = dpdz * dzdToFs;
+dvvbdToFs = [dvdToFs; dvbdToFs];
+
+delta_ToFs = ;
+
+dV_approx = dV + ddVdvvb * dvvbdToFs * delta_ToFs + delta_ToFs' * dvvbdToFs' * d2dVdvvb2 * dvvbdToFs * delta_ToFs;
+dV_approx_i = dV + 
+%%
+% Get/create Lamb dV -> mass surrogate
+simple_max_dV_surrogate(ToF_guess(1) * 0.5, 0.8)
+%%
+dV_bar = dV;
+dT = 0.1;
+dV_approx = zeros([n_seg, 1]);
+for s = 1 : n_seg
+    dr1 = ast_cart_funcs{s}(times(1, s) + dT);
+    dr2 = ast_cart_funcs{s + 1}(times(2, s) + dT);
+    delz = [dr1; dr2; dT];
+    [dV_approx(s)] = lambert_second_order_approx(dV_bar, delz, dpdz, d2pdz2, ddvdp, d2dvdp2);
+end
+%%
+%[text] ## Setup Optimization Problem
+options = optimoptions('fmincon','Display','iter','Algorithm','sqp');
+
+% Objective
+fun = @(x) x();
+
+% Linear inequality Ax <= b
+A = [];
+b = [];
+
+% Linear equality Ax = b
+Aeq = [];
+beq = [];
+
+% Bounds
+lb = [];
+ub = [];
+
+% Nonlinear inequality c(x) <= 0
+% This should just be a quadratic inequality
+c_Q = [];
+c_l = [];
+c_c = [];
+nonlcon = @(x) x' * c_Q * x + c_l * x - c_c;
+
+% Initial condition
+x0 = [ToF_guess; m0_guess];
+%%
+%[text] ## Check convexity
+% need to check c_l, c_c too? need to check if it can be represented by convex SOC
+eigs(c_Q)
+%%
+%[text] ## Solve - should be in a loop
+[x,fval,exitflag,output,lambda,grad,hessian] = fmincon(fun,x0,A,b,Aeq,beq,lb,ub,nonlcon,options)
+
+%%
+%[text] ## Create Low Thrust Optimization Problem
+
+%%
+%[text] ## Solve Low Thrust Optimization Problem
+
+%%
+%[text] ## Compare Results
+
+%%
+%[text] ## Calculate Max Possible Delta V for Continuous Thrust
+Isp = 4000; % [s]
+g_0 = 9.80665; % [m / s2]
+alpha = 1 / (Isp * g_0); % [s / m]
+
+mf = m0 - alpha * u_max * 0.5 * year_to_sec / m_star;
+dV_max = Isp * g_0 * log(m0 / mf) / 1000;
+%%
+%[text] ## Helper Functions
+function [v_shuffled] = shuffle(v)
+    v_shuffled = v(:, randperm(size(v, 2)));
+end
+
+function [ast_cart_funcs] = get_asteroid_cartesian_orbits(ast_data, IDs, mu)   
+    ast_cart_funcs = {};
+
+    for a = 1 : numel(IDs)
+        AST = IDs(a);
+
+        offset = 2;
+        a_ast = ast_data.data(AST, offset + 1);
+        e_ast = ast_data.data(AST, offset + 2);
+        inc_ast = ast_data.data(AST, offset + 3);
+        Omega_ast = ast_data.data(AST, offset + 4);
+        omega_ast = ast_data.data(AST, offset + 5);
+        M_ast0 = deg2rad(ast_data.data(AST, offset + 6));
+        
+        M_ast = @(t) sqrt(mu / a_ast^3) * t + M_ast0;
+        E_ast = @(t) mean_to_eccentric_anomalast_data(M_ast(t), e_ast);
+        nu_ast = @(t) eccentric_to_true_anomalast_data(E_ast(t), e_ast);
+        
+        x_keplerian_ast = @(t) [a_ast e_ast inc_ast*pi/180 Omega_ast*pi/180 omega_ast*pi/180 M_ast(t)]';
+        ast_cart_funcs(a) = {@(t) keplerian_to_cartesian(x_keplerian_ast(t), [], mu)};
+    end
+end
+
+
+function [v1_best, v2_best, dV_best, N_best, dpdz, d2pdz2] = best_lambert_with_sensitivities(x_1, x_2, ToF, N_max, v1_assist, v2_assist)
+    % if ToF is an array, will pick lowest dV
+
+    %enter path of the the dll directory with all required files including .bin (with slash at end) 
+    dllDirectory_Path = convertStringsToChars(string(cd) + "\LambertSolvers\ivLamV2p41_738416p65617\matlabInterface\lib\");  %at distribution in this file near the driver, otherwise change here.
+    
+    addpath(dllDirectory_Path) %add the path where the .dll resides
+
+    %load the dll and initialize the lambert routines
+    iflag=ivLam_initializeDLL(dllDirectory_Path);
+    if(iflag~=0)
+        return
+    else
+        disp('coef path and dll path appear correct, data loaded ok!')
+    end
+
+    % Solve Lambertus Maximus
+    Q = size(x_1, 2);
+    r1vec = x_1(1:3, :);
+    r2vec = x_2(1:3, :);
+    direction = [ones([Q, 1])];%; -ones(Q, 1)]; Do both?
+  
+    includeSecondOrder=true;
+    % First find N (best number of revolutions)
+    [v1vec,v2vec,uptoNhave,infoReturnStatus,infoHalfRevStatus] = ivLam_thruN_multipleInputDLL(Q, r1vec, r2vec, ToF, direction, N_max);
+    
+    % Retrieve solutions
+    [Ns, Qs] = meshgrid(0 : N_max, 1 : Q);
+    jcolumn = Ni2col(Ns, Qs, N_max);
+
+    % Filter out NaN and 0 solutions
+    vel1_unfiltered = v1vec(1:3,jcolumn(:));
+    vel2_unfiltered = v2vec(1:3,jcolumn(:));
+
+    v_filter = all(~isnan(vel1_unfiltered), 1) & any(vel1_unfiltered ~= 0, 1) ...
+               & all(~isnan(vel2_unfiltered), 1) & any(vel2_unfiltered ~= 0, 1);
+
+    vel1 = vel1_unfiltered(:, v_filter);
+    vel2 = vel2_unfiltered(:, v_filter);
+
+    % Calculate delta V
+    v1_b = repmat(x_1(4:6, :), 1, (N_max + 1));
+    v2_b = repmat(x_2(4:6, :), 1, (N_max + 1));
+    dV = max(vecnorm(v1_b(:, v_filter) - vel1) - v1_assist, 0) + max(vecnorm(v2_b(:, v_filter) - vel2) - v2_assist, 0);
+
+    % Extract best solution
+    % [dV_best, q_best_filtered] = min(dV);
+    % v1_best = vel1(:, q_best_filtered);
+    % v2_best = vel2(:, q_best_filtered);
+    v1_best = vel1;
+    v2_best = vel2;
+    dV_best = dV;
+
+    filter_indices = find(v_filter);
+
+    N_best = ceil(filter_indices / Q) - 1;
+
+    % Calculate partials
+    [v1vec,v2vec,infoReturnStatus,infoHalfRevStatus,dpdz,d2pdz2] = ivLam_NtildeWithDerivs_multipleInputDLL(Q, r1vec, r2vec, ToF, direction(filter_indices), N_best, includeSecondOrder);
+             
+
+    % Why transposed?
+    dpdz = permute(dpdz, [2, 1, 3]);
+    d2pdz2 = permute(d2pdz2, [3, 1, 2, 4]);
+
+    % Package outputs
+    % v1_best, v2_best, dV_best, ToF_best, N_best
+
+    %unload the dll and clear memory from the lambert routines
+    iflag= ivLam_unloadDataDLL();
+end
+
+function [jac] = jacobian_func(f, p, wrt)
+    t_sym = sym("t");
+    x_sym = sym("x", [nx, 1]);
+    u_sym = sym("u", [nu, 1]);
+    
+    if strcmp(wrt, "x")
+        jac_func = matlabFunction(jacobian(f(t_sym, x_sym, u_sym, p_sym), x_sym(var_ind)),"Vars", [{t_sym}; {x_sym}; {u_sym}; {p_sym}]);
+        jac = @(t, x, u) jac_func(t, x, u, p);
+    elseif strcmp(wrt, "u")
+        jac_func = matlabFunction(jacobian(f(t_sym, x_sym, u_sym, p_sym), u_sym(var_ind)),"Vars", [{t_sym}; {x_sym}; {u_sym}; {p_sym}]);
+        jac = @(t, x, u) jac_func(t, x, u, p);
+    end
+end
+
+function [a] = accel(r)
+    mu = 1;
+    a = -mu / sqrt(r(1) ^ 2 + r(2) ^ 2 + r(3) ^ 2) ^ 3 * r;
+end
+
+function [dTdToF_i] = T_der_wrt_ToF(n_seg, i)
+    dTdToF = tril(ones(n_seg));
+    dTdToF_i = dTdToF(i, :);
+end
+
+function [ddvdz] = dV_der_wrt_z(ddvdp, dpdz)
+    ddvdz = ddvdp * dpdz;
+end
+
+function [d2dvdz2] = dV_der2_wrt_z(ddvdp, dpdz, d2dvdp2, d2pdz2)
+    d2dvdz2 = ddvdp * d2pdz2 + dpdz' * d2dvdp2 * dpdz;
+end
+
+function [dV_approx] = lambert_second_order_approx(dV_bar, delz, dpdz, d2pdz2, ddvdp, d2dvdp2)
+    
+    [ddvdz] = dV_der_wrt_z(ddvdp, dpdz);
+    [d2dvdz2] = dV_der2_wrt_z(ddvdp, dpdz, d2dvdp2, d2pdz2);
+    dV_approx = dV_bar + ddvdz * delz + 1/2 * delz' * d2dvdz2 * delz;
+end
+
+
+function [dV_max_allowable] = simple_max_dV_surrogate(tf, m0, options)
+    arguments
+        tf
+        m0
+        options.multiplier = 2
+    end
+    AU = 1.49579151285e8;
+    mu_star = 1.32712440018e11; % [km3 / s2]
+    l_star = AU; % [km] one AU
+    m_star = 3000; % [kg] - max initial ship mass
+    a_star = mu_star / l_star ^ 2; % [km / s2]
+    t_star = sqrt(l_star ^ 3 / mu_star);
+    v_star = sqrt(mu_star/l_star);
+
+    Isp = 4000; % [s]
+    g_0 = 9.80665; % [m / s2]
+    alpha = 1 / (Isp * g_0); % [s / m]
+    u_max = 0.6; % [N]
+    
+    mf = m0 - alpha * u_max * tf * t_star / m_star;
+    dV_max = Isp * g_0 * log(m0 / mf) / 1000 / v_star;
+
+    dV_max_allowable = dV_max * options.multiplier;
+end
+
+%[appendix]{"version":"1.0"}
+%---
+%[metadata:view]
+%   data: {"layout":"inline"}
+%---
+%[output:2115606f]
+%   data: {"dataType":"matrix","outputData":{"columns":6,"name":"route","rows":1,"type":"double","value":[["20","33","1","1","20","33"]]}}
+%---

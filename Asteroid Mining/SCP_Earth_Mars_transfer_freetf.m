@@ -55,12 +55,12 @@ nu = 2;
 np = 1;
 
 % PTR algorithm parameters
-ptr_ops.iter_max = 50;
+ptr_ops.iter_max = 200;
 ptr_ops.iter_min = 2;
 ptr_ops.Delta_min = 1e-3;
 ptr_ops.w_vc = 1e2;
 ptr_ops.w_tr = ones(1, Nu) * 5e-3;
-ptr_ops.w_tr_p = 1e-1;
+ptr_ops.w_tr_p = 5e-0;
 ptr_ops.update_w_tr = false;
 ptr_ops.delta_tol = 1e-2;
 ptr_ops.q = 2;
@@ -78,7 +78,7 @@ f = @(t, x, u, p) state_equation(x, u, mu, alpha) * p(1);
 state_convex_constraints = {};
 
 % Convex control constraints
-max_control_constraint = @(t, x, u, p) norm(u(1:2)) - u_max;
+max_control_constraint = {1:N, @(t, x, u, p) norm(u(1:2)) - u_max};
 control_convex_constraints = {max_control_constraint};
 
 % Convex parameter constraints
@@ -89,6 +89,7 @@ parameter_convex_constraints = {};
 convex_constraints = [state_convex_constraints, control_convex_constraints, parameter_convex_constraints];
 
 % Nonconvex state path constraints
+min_mass_constraint = {1:N, @(t, x, u, p, x_ref, u_ref, p_ref, k) 0.7 - x(5)};
 state_nonconvex_constraints = {};
 
 % Nonconvex control constraints
@@ -104,6 +105,9 @@ terminal_bc_linearized = @(x, p, x_ref, p_ref) terminal_bc_linearized(0, x, 0, p
 
 %% Specify Objective
 min_fuel_objective = @(x, u, p, x_ref, u_ref, p_ref) sum(norms(u(1:2, :), 2, 1)) * p_ref(1) / (N - 1) + sum(norms(u_ref(1:2, :), 2, 1)) * (p(1) - p_ref(1)) / (N - 1);
+min_time_objective = @(x, u, p, x_ref, u_ref, p_ref) p(1);
+eta = 0;
+combined_objective = @(x, u, p, x_ref, u_ref, p_ref) eta * p(1) / tf / 2 + (1 - eta) * sum(norms(u(1:2, :), 2, 1)) * p_ref(1) / (N - 1) + sum(norms(u_ref(1:2, :), 2, 1)) * (p(1) - p_ref(1)) / (N - 1);
 
 %% Create Guess
 AU_guess = interp1(tspan, [a_earth, a_mars]', t_k)';
@@ -117,11 +121,11 @@ guess.u = interp1(tspan, zeros(nu, 2)', t_k(1:Nu))' + 1e-3;
 guess.p = tf;
 
 %% Construct Problem Object
-prob = DeterministicProblem(x_0, x_f, N, u_hold, 1, f, guess, convex_constraints, min_fuel_objective, scale = scale, terminal_bc = terminal_bc_linearized, nonconvex_constraints = nonconvex_constraints);
+prob = DeterministicProblem(x_0, x_f, N, u_hold, 1, f, guess, convex_constraints, combined_objective, scale = scale, terminal_bc = terminal_bc_linearized, nonconvex_constraints = nonconvex_constraints);
 
 %%
-Delta = calculate_defect(prob, guess.x, guess.u, guess.p);
-norm(Delta)
+%Delta = calculate_defect(prob, guess.x, guess.u, guess.p);
+%norm(Delta)
 
 %% Test Discretization on Initial Guess
 

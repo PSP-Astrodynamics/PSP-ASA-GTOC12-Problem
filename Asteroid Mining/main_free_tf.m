@@ -55,7 +55,7 @@ ptr_ops.alpha_p = 0;
 scale = false;
 
 %% Get Dynamics
-f = @(t, x, u, p) dynamics_asteroidmining_freetf(t, x, u, p);
+f = @(t, x, u, p) dynamics_free_tf(t, x, u, p);
 
 %% Specify Constraints
 % Convex state path constraints
@@ -97,8 +97,8 @@ guess.p = tf;
 problem = DeterministicProblem(x_0, x_f, N, u_hold, 1, f, guess, convex_constraints, min_fuel_objective, scale = scale, terminal_bc = terminal_bc, integration_tolerance = 1e-12, discretization_method = "state", N_sub = 1);
 
 %%
-Delta = calculate_defect(problem, guess.x, guess.u, guess.p);
-norm(Delta)
+%Delta = calculate_defect(problem, guess.x, guess.u, guess.p);
+%norm(Delta)
 
 %% Test Discretization on Initial Guess
 [problem, Delta_disc] = problem.discretize(guess.x, guess.u, guess.p);

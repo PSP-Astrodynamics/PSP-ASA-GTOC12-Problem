@@ -1,0 +1,58 @@
+# CompilerName=mingw64
+# Mode=optim
+ninja_required_version = 1.3
+
+# Basic folders
+root = .
+builddir = $root/build/win64
+matlabdir = C:/Program Files/MATLAB/R2025a
+startdir = C:/Users/thatf/OneDrive/Documents/ASA/PSP-ASA-GTOC12-Problem/3D Orbit Transfer
+
+# Toolchain information
+cc = C:\ProgramData\MATLAB\SupportPackages\R2025a\3P.instrset\mingw_w64.instrset\bin\gcc
+cxx = C:\ProgramData\MATLAB\SupportPackages\R2025a\3P.instrset\mingw_w64.instrset\bin\g++
+linker = C:\ProgramData\MATLAB\SupportPackages\R2025a\3P.instrset\mingw_w64.instrset\bin\gcc
+linkerxx = C:\ProgramData\MATLAB\SupportPackages\R2025a\3P.instrset\mingw_w64.instrset\bin\g++
+
+cflags =  -c -fexceptions -fno-omit-frame-pointer -m64 -DMATLAB_MEX_FILE  -DMATLAB_MEX_FILE -O2 -fwrapv -DNDEBUG -std=c99 -I "C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer\codegen\mex\discretize_error_dynamics_FOH_kepler_fixedtf" -I "C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer" -I "C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer\codegen\mex\discretize_error_dynamics_FOH_kepler_fixedtf\interface" -I "C:\Program Files\MATLAB\R2025a\extern\include" -I "." -DMODEL=discretize_error_dynamics_FOH_kepler_fixedtf_mex -D__USE_MINGW_ANSI_STDIO=1 -msse2 -fno-predictive-commoning -Wno-stringop-overflow -Wno-maybe-uninitialized -fopenmp 
+
+cxxflags =  -c -fexceptions -fno-omit-frame-pointer -m64 -DMATLAB_MEX_FILE  -DMATLAB_MEX_FILE -O2 -fwrapv -DNDEBUG -std=c++11 -I "C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer\codegen\mex\discretize_error_dynamics_FOH_kepler_fixedtf" -I "C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer" -I "C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\3D Orbit Transfer\codegen\mex\discretize_error_dynamics_FOH_kepler_fixedtf\interface" -I "C:\Program Files\MATLAB\R2025a\extern\include" -I "." -DMODEL=discretize_error_dynamics_FOH_kepler_fixedtf_mex -D__USE_MINGW_ANSI_STDIO=1 -msse2 -fno-predictive-commoning -Wno-stringop-overflow -Wno-maybe-uninitialized -fopenmp 
+
+ldflags = discretize_error_dynamics_FOH_kepler_fixedtf.def  -m64 -Wl,--no-undefined -shared -static -L"C:\Program Files\MATLAB\R2025a\extern\lib\win64\mingw64" -llibmx -llibmex -llibmat -lm -llibmwlapack -llibmwblas -o "discretize_error_dynamics_FOH_kepler_fixedtf_mex.mexw64" -llibemlrt -llibcovrt -llibut -llibmwmathutil -fopenmp
+
+ldxxflags = discretize_error_dynamics_FOH_kepler_fixedtf.def  -m64 -Wl,--no-undefined -shared -static -L"C:\Program Files\MATLAB\R2025a\extern\lib\win64\mingw64" -llibmx -llibmex -llibmat -lm -llibmwlapack -llibmwblas -llibMatlabDataArray -llibMatlabEngine  -o "discretize_error_dynamics_FOH_kepler_fixedtf_mex.mexw64" -llibemlrt -llibcovrt -llibut -llibmwmathutil -fopenmp
+
+linkobjs = 
+
+# Build Rules
+rule cc
+    command = $cc $cflags $in -o $out
+
+rule cxx
+    command = $cxx $cxxflags $in -o $out
+
+rule link
+    command = $linker @$out.rsp $linkobjs $ldflags
+    rspfile = $out.rsp
+    rspfile_content = $in
+
+rule linkxx
+    command = $linkerxx $in $linkobjs $ldxxflags
+
+# Build
+build $builddir/discretize_error_dynamics_FOH_kepler_fixedtf_data.o : cc $root/discretize_error_dynamics_FOH_kepler_fixedtf_data.c
+build $builddir/rt_nonfinite.o : cc $root/rt_nonfinite.c
+build $builddir/discretize_error_dynamics_FOH_kepler_fixedtf_initialize.o : cc $root/discretize_error_dynamics_FOH_kepler_fixedtf_initialize.c
+build $builddir/discretize_error_dynamics_FOH_kepler_fixedtf_terminate.o : cc $root/discretize_error_dynamics_FOH_kepler_fixedtf_terminate.c
+build $builddir/discretize_error_dynamics_FOH_kepler_fixedtf.o : cc $root/discretize_error_dynamics_FOH_kepler_fixedtf.c
+build $builddir/A_kepler_fixedtf.o : cc $root/A_kepler_fixedtf.c
+build $builddir/f_kepler_fixedtf.o : cc $root/f_kepler_fixedtf.c
+build $builddir/integrate_error_discrete_FOH_kepler_fixedtf.o : cc $root/integrate_error_discrete_FOH_kepler_fixedtf.c
+build $builddir/_coder_discretize_error_dynamics_FOH_kepler_fixedtf_api.o : cc $root/interface/_coder_discretize_error_dynamics_FOH_kepler_fixedtf_api.c
+build $builddir/_coder_discretize_error_dynamics_FOH_kepler_fixedtf_mex.o : cc $root/interface/_coder_discretize_error_dynamics_FOH_kepler_fixedtf_mex.c
+build $builddir/discretize_error_dynamics_FOH_kepler_fixedtf_emxutil.o : cc $root/discretize_error_dynamics_FOH_kepler_fixedtf_emxutil.c
+build $builddir/_coder_discretize_error_dynamics_FOH_kepler_fixedtf_info.o : cc $root/interface/_coder_discretize_error_dynamics_FOH_kepler_fixedtf_info.c
+build $builddir/c_mexapi_version.o : cc $matlabdir/extern/version/c_mexapi_version.c
+
+# Link
+build $root\discretize_error_dynamics_FOH_kepler_fixedtf_mex.mexw64 : link $builddir/discretize_error_dynamics_FOH_kepler_fixedtf_data.o $builddir/rt_nonfinite.o $builddir/discretize_error_dynamics_FOH_kepler_fixedtf_initialize.o $builddir/discretize_error_dynamics_FOH_kepler_fixedtf_terminate.o $builddir/discretize_error_dynamics_FOH_kepler_fixedtf.o $builddir/A_kepler_fixedtf.o $builddir/f_kepler_fixedtf.o $builddir/integrate_error_discrete_FOH_kepler_fixedtf.o $builddir/_coder_discretize_error_dynamics_FOH_kepler_fixedtf_api.o $builddir/_coder_discretize_error_dynamics_FOH_kepler_fixedtf_mex.o $builddir/discretize_error_dynamics_FOH_kepler_fixedtf_emxutil.o $builddir/_coder_discretize_error_dynamics_FOH_kepler_fixedtf_info.o $builddir/c_mexapi_version.o 
