@@ -98,7 +98,7 @@ load_lambert()
 %% Lambertify
 ast_data = importdata('GTOC12_Asteroids_Data.txt');
 offset = 2;
-IDs = 1 : 60000;
+IDs = 1 : 3000;
 ast.a = ast_data.data(IDs, offset + 1);
 ast.e = ast_data.data(IDs, offset + 2);
 ast.inc = deg2rad(ast_data.data(IDs, offset + 3));
@@ -274,9 +274,9 @@ dataset_1p0ToF_14yr_0p45m.ToF = tspan(2) - tspan(1);
 dataset_1p0ToF_14yr_0p45m.t0 = tspan(1);
 dataset_1p0ToF_14yr_0p45m.x_1 = x_1_kep(:, converged_is);
 dataset_1p0ToF_14yr_0p45m.x_2 = x_2_kep(:, converged_is);
-save dataset_AE_1p0ToF_14yr_0p45m.mat dataset_1p0ToF_14yr_0p45m
+% save dataset_AE_1p0ToF_14yr_0p45m.mat dataset_1p0ToF_14yr_0p45m
 %%
-load("dataset_AE_1p3ToF_0yr.mat")
+load("dataset_1p0ToF_14yr_0p45m.mat")
 
 %%
 
@@ -291,7 +291,7 @@ hold off
 axis equal
  
 %%
-ig = converged_is(3);
+ig = converged_is(5);
 x = ptr_sols.x(:, :, ig);
 u = ptr_sols.u(:, :, ig);
 p = ptr_sols.p(:, ig);
@@ -361,6 +361,21 @@ plot(t_cont_sol(1:end), x_cont_sol(7, :))
 title("Mass")
 xlabel("Time")
 
+
+%% Compare dV used with rocket equation estimate
+if u_hold == "ZOH"
+    dV_cont = sum(vecnorm(u_cont_sol) ./ (x_cont_sol(7, 1 : (end - 1)) * m_star) .* diff(t_cont_sol)' * t_star / 1000 / v_star); % delta V
+elseif u_hold == "FOH"
+    dV_cont = sum(((vecnorm(u_cont_sol(:, 1 : (end - 1))) ./ (x_cont_sol(7, 1 : (end - 1)) * m_star) + vecnorm(u_cont_sol(:, 2 : end))) ./ (x_cont_sol(7, 2 : end) * m_star)) / 2 .* diff(t_cont_sol)' * t_star / 1000 / v_star); % delta V
+end
+
+dV_rocket_equation = Isp * g_0 * log(problem.x0(7) / x(7, end)) / 1000 / v_star;
+
+rel_dV_error_perc_rocket_equation = (dV_cont - dV_rocket_equation) / dV_cont * 100
+
+low_thrust_over_lambert = dV_rocket_equation / dV_best_AE_filtered(ig)
+
+
 %% Plot a bunch of solutions
 figure
 for ic = 1 : numel(converged_is)
@@ -393,7 +408,7 @@ for ic = 1 : numel(converged_is)
     
     r = x(1:3, :); v = x(4:6, :);
     
-    x_0_opt = problem.x0 + [0; 0; 0; p(1:3); 0];
+    x_0_opt = problem.x0;
     
     [t_cont_sol, x_cont_sol, u_cont_sol] = problem.cont_prop(u, p, x0 = x_0_opt);
     r_cont_sol = x_cont_sol(1:3, :);
@@ -402,7 +417,7 @@ for ic = 1 : numel(converged_is)
     r_guess = guess.x(1:3, :);
     
     plot_cartesian_orbit(r_cont_sol(1:3,:)', 'k', 0.4, 1); hold on
-    quiver3(r(1, 1:Nu), r(2, 1:Nu), r(3, 1:Nu), u(1, :), u(2, :), u(3, :), 1, "filled", Color = "red")
+    quiver3(r(1, 1:Nu), r(2, 1:Nu), r(3, 1:Nu), u(1, :), u(2, :), u(3, :), 0.5, "filled", Color = "red")
     quiver3(r(1, end), r(2, end), r(3, end), p(1), p(2), p(3), 2, "filled", Color = "magenta", LineWidth=1, MaxHeadSize=1)
     plot_cartesian_orbit(r_guess(1:3,:)', 'g', 0.4, 1); hold on
     plot_cartesian_orbit(x_cartesian_earth_plot(1:3, :)', 'b', 0.3, 1)
@@ -411,24 +426,10 @@ for ic = 1 : numel(converged_is)
     scatter3(x_cartesian_ast_plot(1, end), x_cartesian_ast_plot(2, end), x_cartesian_ast_plot(3, end), "red")
 end
 % plotOrbit3(0, 0, 0, 1, 0, 0 : 0.01 : 2 * pi, "m", 1, 1, [0;0;0], false, 1)
-title('Optimal Earth -> Asteroid Transfer Trajectories')
+title('Optimal Asteroid -> Earth Transfer Trajectories')
 xlabel('X [AU]'); ylabel('Y [AU]'); zlabel('Z [AU]')
 grid on
 % legend('Spacecraft', "", "Thrust", "Launch Velocity", 'Guess', "", 'Earth', "", 'Asteroid', "", "Start", "End", 'Location', 'northwest'); axis equal; grid on
-
-
-%% Compare dV used with rocket equation estimate
-if u_hold == "ZOH"
-    dV_cont = sum(vecnorm(u_cont_sol) ./ (x_cont_sol(7, 1 : (end - 1)) * m_star) .* diff(t_cont_sol)' * t_star / 1000 / v_star); % delta V
-elseif u_hold == "FOH"
-    dV_cont = sum(((vecnorm(u_cont_sol(:, 1 : (end - 1))) ./ (x_cont_sol(7, 1 : (end - 1)) * m_star) + vecnorm(u_cont_sol(:, 2 : end))) ./ (x_cont_sol(7, 2 : end) * m_star)) / 2 .* diff(t_cont_sol)' * t_star / 1000 / v_star); % delta V
-end
-
-dV_rocket_equation = Isp * g_0 * log(problem.x0(7) / x(7, end)) / 1000 / v_star;
-
-rel_dV_error_perc_rocket_equation = (dV_cont - dV_rocket_equation) / dV_cont * 100
-
-low_thrust_over_lambert = dV_rocket_equation / dV_best_AA_filtered(ig)
 
 
 %% Helper
