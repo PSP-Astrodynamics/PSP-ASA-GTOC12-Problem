@@ -1,4 +1,11 @@
-function [dataset_filename, ptr_sols, converged_is] = Asteroid2Asteroid_lowthrust_batch_func(IDs, m0_frac, t0_yr, ToF_yr)
+function [dataset_filename, ptr_sols, converged_is] = Asteroid2Asteroid_lowthrust_batch_func(IDs, m0_frac, t0_yr, ToF_yr, options)
+arguments
+    IDs
+    m0_frac
+    t0_yr
+    ToF_yr
+    options.surrogate = "PCE"
+end
 
 %% Initialize
 AU = 1.49579151285e8;
@@ -89,29 +96,41 @@ ast.Omega = deg2rad(ast_data.data(IDs, offset + 4));
 ast.omega = deg2rad(ast_data.data(IDs, offset + 5));
 ast.M0 = deg2rad(ast_data.data(IDs, offset + 6));
 
-comb_i_full = combinations(IDs, IDs);
-comb_i = comb_i_full(comb_i_full.IDs ~= comb_i_full.IDs_1, :);
+IDs_i = 1 : numel(IDs);
+
+comb_i_full = combinations(IDs_i, IDs_i);
+comb_i = comb_i_full(comb_i_full.IDs_i ~= comb_i_full.IDs_i_1, :);
 
 [x_kep_ast, x_cart_ast] = get_cartesian_states(ast, mu, [t0, tf_actual]);
 
 % Ast1 -> Ast2
-x_1_AA = x_cart_ast(:, comb_i.IDs, 1);
-x_2_AA = x_cart_ast(:, comb_i.IDs_1, 2);
+x_1_AA = x_cart_ast(:, comb_i.IDs_i, 1);
+x_2_AA = x_cart_ast(:, comb_i.IDs_i_1, 2);
 
 % Ast -> Ast (zero rev for drop-off)
-[v1_best_AA, v2_best_AA, dV_best_AA] = best_lambert_zeroN(x_1_AA, x_2_AA, ToF * ones([1, numel(comb_i.IDs)]), 0, 0);
+[v1_best_AA, v2_best_AA, dV_best_AA] = best_lambert_zeroN(x_1_AA, x_2_AA, ToF * ones([1, numel(comb_i.IDs_i)]), 0, 0);
 
 %% Filter Lambert Solutions
 max_dV = dV_max;
 multiplier = 1;
-lambert_filter = find(dV_best_AA < max_dV / multiplier);
-n_guesses = numel(lambert_filter)
 
-x_1_AA_filtered = x_1_AA(:, lambert_filter);
-x_2_AA_filtered = x_2_AA(:, lambert_filter);
-v1_best_AA_filtered = v1_best_AA(:, lambert_filter);
-v2_best_AA_filtered = v2_best_AA(:, lambert_filter);
-dV_best_AA_filtered = dV_best_AA(lambert_filter);
+if options.surrogate == "PCE"
+    % Run surrogate to estimate low thrust dV
+    PCE_model = load("Ast2Ast_PCE_ratio_diffnorm_arbitrary.mat").myPCE_ratio;
+    dV_PCE = Ast2Ast_PCE_ratio_diffnorm_eval(PCE_model, x_1_AA(4:6, :) - v1_best_AA, x_2_AA(4:6, :) - v2_best_AA, dV_best_AA, m0 * ones([1, numel(dV_best_AA)]), ToF * ones([1, numel(dV_best_AA)]), dV_max * ones([1, numel(dV_best_AA)]));
+    dV_filter = find((dV_best_AA < max_dV / multiplier) & (dV_PCE' < max_dV * 0.4));
+    dV_best_AA_filtered = dV_PCE(dV_filter)';
+elseif surrogate == "Lambert"
+    dV_filter = find(dV_best_AA < max_dV / multiplier);
+    dV_best_AA_filtered = dV_best_AA(dV_filter);
+end
+
+n_guesses = numel(dV_filter)
+
+x_1_AA_filtered = x_1_AA(:, dV_filter);
+x_2_AA_filtered = x_2_AA(:, dV_filter);
+v1_best_AA_filtered = v1_best_AA(:, dV_filter);
+v2_best_AA_filtered = v2_best_AA(:, dV_filter);
 
 %% Create Guesses from Lambert
 guesses = {};
@@ -228,8 +247,8 @@ hist_ratio = histogram(dV_ratio);
 
 %%
 % Ast1 -> Ast2
-x_1_kep = x_kep_ast(:, comb_i.IDs(lambert_filter), 1);
-x_2_kep = x_kep_ast(:, comb_i.IDs_1(lambert_filter), 2);
+x_1_kep = x_kep_ast(:, comb_i.IDs_i(lambert_filter), 1);
+x_2_kep = x_kep_ast(:, comb_i.IDs_i_1(lambert_filter), 2);
 
 dataset = [];
 dataset.dV_lambert = dV_best_AA_filtered(converged_is);
@@ -239,10 +258,14 @@ dataset.v2_ast = x_2_AA_filtered(4:6, converged_is);
 dataset.v1_lambert = v1_best_AA_filtered(:, converged_is);
 dataset.v2_lambert = v2_best_AA_filtered(:, converged_is);
 dataset.dV_ratio = dV_ratio;
-dataset.ToF = ToF;
-dataset.t0 = t0;
+dataset.ToF = ToF * ones([1, numel(converged_is)]);
+dataset.t0 = t0 * ones([1, numel(converged_is)]);
+dataset.m0 = m0 * ones([1, numel(converged_is)]);
+dataset.dV_max = dV_max * ones([1, numel(converged_is)]);
 dataset.x_1 = x_1_kep(:, converged_is);
 dataset.x_2 = x_2_kep(:, converged_is);
+dataset.converged_is = converged_is;
+dataset.IDs = IDs;
 save("Datasets/" + dataset_filename + ".mat", "dataset")
 
 %%
@@ -256,8 +279,8 @@ for ic = 1 : min(20, numel(converged_is))
     p = ptr_sols.p(:, ig);
     
     i_filter = lambert_filter(ig);
-    ID1 = comb_i.IDs(i_filter);
-    ID2 = comb_i.IDs_1(i_filter);
+    ID1 = IDs(comb_i.IDs_i(i_filter));
+    ID2 = IDs(comb_i.IDs_i_1(i_filter));
     [x_kep_0_ast1, M_ast1, E_ast1, nu_ast1, x_keplerian_ast1, x_cartesian_ast1] = get_asteroid(ID1);
     [x_kep_0_ast2, M_ast2, E_ast2, nu_ast2, x_keplerian_ast2, x_cartesian_ast2] = get_asteroid(ID2);
     

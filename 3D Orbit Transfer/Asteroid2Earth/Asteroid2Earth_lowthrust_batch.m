@@ -46,7 +46,7 @@ np = 3;
 
 initial_guess = "Lambert"; % "straight line" or "Lambert"
 
-ptr_ops.iter_max = 10;
+ptr_ops.iter_max = 15;
 ptr_ops.iter_min = 2;
 ptr_ops.Delta_min = 5e-3;
 ptr_ops.w_vc = 1e2;
@@ -98,7 +98,7 @@ load_lambert()
 %% Lambertify
 ast_data = importdata('GTOC12_Asteroids_Data.txt');
 offset = 2;
-IDs = 1 : 3000;
+IDs = 1 : 60000;
 ast.a = ast_data.data(IDs, offset + 1);
 ast.e = ast_data.data(IDs, offset + 2);
 ast.inc = deg2rad(ast_data.data(IDs, offset + 3));
@@ -118,7 +118,7 @@ x_2_AE = repmat(x_cartesian_earth(tf_actual), 1, numel(IDs));
 
 %% Filter Lambert Solutions
 max_dV = dV_max;
-multiplier = 1 / 4;
+multiplier = 1 / 5.2; % Some lambert solutions are hyperbolic so need to deal with those
 lambert_filter = find(dV_best_AE < max_dV / multiplier);
 n_guesses = numel(lambert_filter)
 
@@ -262,30 +262,31 @@ hist_ratio = histogram(dV_ratio);
 x_1_kep = repmat(x_keplerian_earth(0), 1, numel(lambert_filter));
 x_2_kep = x_kep_ast(:, IDs(lambert_filter));
 
-dataset_1p0ToF_14yr_0p45m = [];
-dataset_1p0ToF_14yr_0p45m.dV_lambert = dV_best_AE_filtered(converged_is);
-dataset_1p0ToF_14yr_0p45m.dV_lowthrust = dV_rocket_equation;
-dataset_1p0ToF_14yr_0p45m.v1_ast = x_1_AE_filtered(4:6, converged_is);
-dataset_1p0ToF_14yr_0p45m.v2_ast = x_2_AE_filtered(4:6, converged_is); 
-dataset_1p0ToF_14yr_0p45m.v1_lambert = v1_best_AE_filtered(:, converged_is);
-dataset_1p0ToF_14yr_0p45m.v2_lambert = v2_best_AE_filtered(:, converged_is);
-dataset_1p0ToF_14yr_0p45m.dV_ratio = dV_ratio;
-dataset_1p0ToF_14yr_0p45m.ToF = tspan(2) - tspan(1);
-dataset_1p0ToF_14yr_0p45m.t0 = tspan(1);
-dataset_1p0ToF_14yr_0p45m.x_1 = x_1_kep(:, converged_is);
-dataset_1p0ToF_14yr_0p45m.x_2 = x_2_kep(:, converged_is);
-% save dataset_AE_1p0ToF_14yr_0p45m.mat dataset_1p0ToF_14yr_0p45m
+dataset = [];
+dataset.dV_lambert = dV_best_AE_filtered(converged_is);
+dataset.dV_lowthrust = dV_rocket_equation;
+dataset.v1_ast = x_1_AE_filtered(4:6, converged_is);
+dataset.v2_ast = x_2_AE_filtered(4:6, converged_is); 
+dataset.v1_lambert = v1_best_AE_filtered(:, converged_is);
+dataset.v2_lambert = v2_best_AE_filtered(:, converged_is);
+dataset.dV_ratio = dV_ratio;
+dataset.ToF = tspan(2) - tspan(1);
+dataset.t0 = tspan(1);
+dataset.x_1 = x_1_kep(:, converged_is);
+dataset.x_2 = x_2_kep(:, converged_is);
+dataset.IDs = IDs(lambert_filter(converged_is));
+save Datasets\dataset_AE_1p0ToF_14yr_0p45m.mat dataset
 %%
 load("dataset_1p0ToF_14yr_0p45m.mat")
 
 %%
 
 figure
-scatter3(dataset_1p0ToF_14yr_0p45m.dV_lambert, dataset_1p0ToF_14yr_0p45m.dV_lowthrust, dataset_1p0ToF_14yr_0p45m.x_1(3,:) + dataset_1p0ToF_14yr_0p45m.x_2(3,:)); hold on
+scatter3(dataset.dV_lambert, dataset.dV_lowthrust, dataset.x_1(3,:) + dataset.x_2(3,:)); hold on
 xlabel("Lambert dV [km / s]")
 ylabel("Low Thrust dV [km / s]")
 title("Low Thrust dV vs Lambert dV")
-subtitle(sprintf("For %.1f Month Asteroid Transfers at Year %.2f", dataset_1p0ToF_14yr_0p45m.ToF * t_star / year_to_sec * 12, dataset_1p0ToF_14yr_0p45m.t0 * t_star / year_to_sec))
+subtitle(sprintf("For %.1f Month Asteroid Transfers at Year %.2f", dataset.ToF * t_star / year_to_sec * 12, dataset.t0 * t_star / year_to_sec))
 grid on
 hold off
 axis equal
@@ -378,7 +379,7 @@ low_thrust_over_lambert = dV_rocket_equation / dV_best_AE_filtered(ig)
 
 %% Plot a bunch of solutions
 figure
-for ic = 1 : numel(converged_is)
+for ic = 1 : 50%numel(converged_is)
     ig = converged_is(ic);%converged_is(round(rand(1) * numel(converged_is)));
     x = ptr_sols.x(:, :, ig);
     u = ptr_sols.u(:, :, ig);
@@ -429,6 +430,7 @@ end
 title('Optimal Asteroid -> Earth Transfer Trajectories')
 xlabel('X [AU]'); ylabel('Y [AU]'); zlabel('Z [AU]')
 grid on
+axis equal
 % legend('Spacecraft', "", "Thrust", "Launch Velocity", 'Guess', "", 'Earth', "", 'Asteroid', "", "Start", "End", 'Location', 'northwest'); axis equal; grid on
 
 
@@ -584,7 +586,7 @@ function [guess] = lambert_initial_guess(x_1, x_2, v_1_trans, v_2_trans, N_rev, 
 end
 
 function [] = load_lambert()
-    dllDirectory_Path = convertStringsToChars(string(cd) + "\LambertSolvers\ivLamV2p41_738416p65617\matlabInterface\lib\");  %at distribution in this file near the driver, otherwise change here.
+    dllDirectory_Path = convertStringsToChars(string(cd) + "\LambertSolvers2\ivLamV2p41_738416p65617\matlabInterface\lib\");  %at distribution in this file near the driver, otherwise change here.
     
     addpath(dllDirectory_Path) %add the path where the .dll resides
     

@@ -23,7 +23,11 @@ function [x_keplerian, nu] = cartesian_to_keplerian(x_cartesian, Khat, Ihat, mu)
     nu = acos(dot(evec, rvec) / (e * r)) * nu_sign; % QUADRANT? If dot(r, v) > 0 then < pi
     
     a = semimajor_from_r_v_mu(r, v, mu);
-    M = eccentric_to_mean_anomaly(true_to_eccentric_anomaly(nu,e), e);
+    if e < 1
+        M = eccentric_to_mean_anomaly(true_to_eccentric_anomaly(nu, e), e);
+    else
+        M = hyperbolic_to_mean_anomaly(true_to_hyperbolic_anomaly(nu, e), e); % not implemented
+    end
 
     x_keplerian = [a; e; i; Omega; omega; M];
 end

@@ -7,7 +7,11 @@ function x_cartesian = keplerian_to_cartesian(x_keplerian,nu,mu)
     M = x_keplerian(6);
 
     if isempty(nu)
-        nu = eccentric_to_true_anomaly(mean_to_eccentric_anomaly(M, e), e);
+        if e < 1
+            nu = eccentric_to_true_anomaly(mean_to_eccentric_anomaly(M, e), e);
+        elseif e > 1
+            nu = hyerbolic_to_true_anomaly(mean_to_hyperbolic_anomaly(M, e), e);
+        end
     end
 
     %rvec = rvec_from_keplerian(x_keplerian, nu);

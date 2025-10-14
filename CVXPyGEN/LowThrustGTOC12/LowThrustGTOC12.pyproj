@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>24858c5c-592d-4fec-9fed-f01cf5844c25</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>Ast2Earth\Ast2Earth_fixed_FOH.py</StartupFile>
+    <StartupFile>Ast2Earth_fixedmf\Ast2Earth_fixedmf_FOH.py</StartupFile>
     <SearchPath>..\LowThrustGTOC12</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -26,7 +26,9 @@
     <Compile Include="Ast2Ast\Ast2Ast_fixed_FOH_PTR_ECOS\__init__.py" />
     <Compile Include="Ast2Ast_fixed_FOH.py" />
     <Compile Include="Ast2Earth\Ast2Earth_fixed_FOH.py" />
+    <Compile Include="Ast2Earth_fixedmf\Ast2Earth_fixedmf_FOH.py" />
     <Compile Include="Ast2Earth_fixed_FOH.py" />
+    <Compile Include="Deterministic_6DoF_fixed_FOH.py" />
     <Compile Include="Earth2Ast\Earth2Ast_fixed_FOH.py" />
     <Compile Include="Earth2Ast\Earth2Ast_fixed_FOH_PTR_ECOS\cpg_solver.py" />
     <Compile Include="Earth2Ast\Earth2Ast_fixed_FOH_PTR_ECOS\setup.py" />
@@ -92,6 +94,8 @@
     <Folder Include="Ast2Ast\Ast2Ast_fixed_FOH_PTR_ECOS\c\solver_code\src\" />
     <Folder Include="Ast2Ast\Ast2Ast_fixed_FOH_PTR_ECOS\c\src\" />
     <Folder Include="Ast2Earth\" />
+    <Folder Include="Ast2Earth_fixedmf\" />
+    <Folder Include="Ast2Earth_fixedmf\Ast2Earth_fixedmf_FOH_PTR_ECOS_bad\" />
     <Folder Include="Earth2Ast\" />
     <Folder Include="Earth2Ast\Earth2Ast_fixed_FOH_PTR_ECOS\" />
     <Folder Include="Earth2Ast\Earth2Ast_fixed_FOH_PTR_ECOS\build\" />
@@ -336,6 +340,11 @@
     <Content Include="Ast2Ast\saved_Ast2Ast_input_FOH.npz" />
     <Content Include="Ast2Earth\Ast2Earth_prob_FOH" />
     <Content Include="Ast2Earth\saved_Ast2Earth_input_FOH.npz" />
+    <Content Include="Ast2Earth_fixedmf\Ast2Earth_fixedmf_FOH_PTR_ECOS_bad\cpg_module.cp39-win_amd64.pyd" />
+    <Content Include="Ast2Earth_fixedmf\Ast2Earth_fixedmf_prob_FOH" />
+    <Content Include="Ast2Earth_fixedmf\cpg_solve_wrap_Ast2Earth_fixedmf.c" />
+    <Content Include="Ast2Earth_fixedmf\quick_compile_Ast2Earth_fixedmf.m" />
+    <Content Include="Ast2Earth_fixedmf\saved_Ast2Earth_fixedmf_input_FOH.npz" />
     <Content Include="Earth2Ast\cpg_solve_wrap_Earth2Ast.c" />
     <Content Include="Earth2Ast\cpg_solve_wrap_Earth2Ast.mexw64" />
     <Content Include="Earth2Ast\Earth2Ast_fixed_FOH_PTR_ECOS\build\temp.win-amd64-cpython-39\Release\cpp\src\cpg_module.obj" />

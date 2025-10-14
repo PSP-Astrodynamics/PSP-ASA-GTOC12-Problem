@@ -16,7 +16,7 @@ mu = 1;
 mu_dim = mu_star;
 m0 = 3000 / m_star;
 m_min = 500 / m_star; % dependent on a lot
-tf = 1.3 * year_to_sec / t_star;
+tf = 1.5 * year_to_sec / t_star;
 N = 15;
 
 %% Calculate max dV possible for continuous max thrust (ignoring external forces)
@@ -47,7 +47,7 @@ ptr_ops.iter_max = 15;
 ptr_ops.iter_min = 2;
 ptr_ops.Delta_min = 5e-3;
 ptr_ops.w_vc = 1e2;
-ptr_ops.w_tr = ones(1, Nu) * 1e-3;
+ptr_ops.w_tr = ones(1, Nu) * 1e-4;
 ptr_ops.w_tr_p = 1e-4 * ones(1, np);
 ptr_ops.update_w_tr = false;
 ptr_ops.delta_tol = 1e-2;
@@ -112,13 +112,41 @@ x_1_EA = repmat(x_cartesian_earth(tspan(1)), 1, numel(IDs));
 x_2_EA = x_cart_ast(:, :, 1);
 
 % Earth -> Ast (up to one rev most likely)
-[v1_best_EA, v2_best_EA, dV_best_EA, N_best] = best_lambert_thruN(x_1_EA, x_2_EA, (tspan(2) - tspan(1)) * ones([1, numel(IDs)]), 2, 6 / v_star, 0);
+[v1_best_EA_pos, v2_best_EA_pos, dV_best_EA_pos, N_best_pos] = best_lambert_thruN(x_1_EA, x_2_EA, (tspan(2) - tspan(1)) * ones([1, numel(IDs)]), 2, 6 / v_star, 0, direction = ones([1, numel(IDs)]));
+[v1_best_EA_neg, v2_best_EA_neg, dV_best_EA_neg, N_best_neg] = best_lambert_thruN(x_1_EA, x_2_EA, (tspan(2) - tspan(1)) * ones([1, numel(IDs)]), 2, 6 / v_star, 0, direction = -ones([1, numel(IDs)]));
+[dV_best_EA, dV_best_i] = min([dV_best_EA_pos, dV_best_EA_neg], [], 2);
+
+v1_best_EA = zeros([3, numel(IDs)]);
+v2_best_EA = zeros([3, numel(IDs)]);
+N_best = zeros([1, numel(IDs)]);
+for i = 1 : numel(IDs)
+    if dV_best_i(i) == 1
+        v1_best_EA(:, i) = v1_best_EA_pos(:, i);
+        v2_best_EA(:, i) = v2_best_EA_pos(:, i);
+        N_best(i) = N_best_pos(i);
+    elseif dV_best_i(i) == 2
+        v1_best_EA(:, i) = v1_best_EA_neg(:, i);
+        v2_best_EA(:, i) = v2_best_EA_neg(:, i);
+        N_best(i) = N_best_neg(i);
+    end
+end
 %[v1_best_EA, v2_best_EA, dV_best_EA] = best_lambert_zeroN(x_1_EA, x_2_EA, ToF * ones([1, numel(IDs)]), 6 / v_star, 0);
+
+rvec = x_1_EA(1:3, :);
+vvec = v1_best_EA(1:3, :);
+
+r = vecnorm(rvec);
+v = vecnorm(vvec);
+
+hvec = cross(rvec, vvec);
+h = vecnorm(hvec);
+evec = 1 / mu * ((v .^ 2 - mu ./ r) .* rvec - dot(rvec, vvec) .* vvec);
+e = vecnorm(evec);
 
 %% Filter Lambert Solutions
 max_dV = dV_max;
-multiplier = 1/4;
-lambert_filter = find(dV_best_EA < max_dV / multiplier);
+multiplier = 1/40000;
+lambert_filter = find(dV_best_EA < max_dV / multiplier & e' < 1);
 n_guesses = numel(lambert_filter)
 
 x_1_EA_filtered = x_1_EA(:, lambert_filter);
@@ -158,7 +186,7 @@ ptr_sols_x = {};
 ptr_sols_u = {};
 ptr_sols_p = {};
 converged_is = {};
-batch_size = 100;
+batch_size = 500;
 parfor i = 1 : ceil(n_guesses / batch_size)
     converged_is_batch = zeros([1, batch_size]);
     ptr_sols_batch_x = zeros(nx, N, batch_size); 
@@ -259,38 +287,40 @@ hist_ratio = histogram(dV_ratio);
 %%
 % Earth -> Ast
 x_1_kep = repmat(x_keplerian_earth(0), 1, numel(lambert_filter));
-x_2_kep = x_kep_ast(:, IDs(lambert_filter));
+x_2_kep = x_kep_ast(:, lambert_filter);
 
-dataset_1p3ToF_0yr = [];
-dataset_1p3ToF_0yr.dV_lambert = dV_best_EA_filtered(converged_is);
-dataset_1p3ToF_0yr.dV_lowthrust = dV_rocket_equation;
-dataset_1p3ToF_0yr.v1_ast = x_1_EA_filtered(4:6, converged_is);
-dataset_1p3ToF_0yr.v2_ast = x_2_EA_filtered(4:6, converged_is); 
-dataset_1p3ToF_0yr.v1_lambert = v1_best_EA_filtered(:, converged_is);
-dataset_1p3ToF_0yr.v2_lambert = v2_best_EA_filtered(:, converged_is);
-dataset_1p3ToF_0yr.dV_ratio = dV_ratio;
-dataset_1p3ToF_0yr.ToF = tspan(2) - tspan(1);
-dataset_1p3ToF_0yr.t0 = tspan(1);
-dataset_1p3ToF_0yr.x_1 = x_1_kep(:, converged_is);
-dataset_1p3ToF_0yr.x_2 = x_2_kep(:, converged_is);
-save dataset_EA_1p3ToF_0yr.mat dataset_1p3ToF_0yr
+dataset = [];
+dataset.dV_lambert = dV_best_EA_filtered(converged_is);
+dataset.dV_lowthrust = dV_rocket_equation;
+dataset.v1_ast = x_1_EA_filtered(4:6, converged_is);
+dataset.v2_ast = x_2_EA_filtered(4:6, converged_is); 
+dataset.v1_lambert = v1_best_EA_filtered(:, converged_is);
+dataset.v2_lambert = v2_best_EA_filtered(:, converged_is);
+dataset.dV_ratio = dV_ratio;
+dataset.mf = reshape(ptr_sols.x(7, end, converged_is), 1, []);
+dataset.ToF = tspan(2) - tspan(1);
+dataset.t0 = tspan(1);
+dataset.x_1 = x_1_kep(:, converged_is);
+dataset.x_2 = x_2_kep(:, converged_is);
+dataset.IDs = IDs(lambert_filter(converged_is));
+save Datasets\dataset_EA_1p5ToF_0yr.mat dataset
 %%
-load("dataset_EA_1p3ToF_0yr.mat")
+%load("dataset_EA_1p3ToF_0yr.mat")
 
 %%
 
 figure
-scatter3(dataset_1p3ToF_0yr.dV_lambert, dataset_1p3ToF_0yr.dV_lowthrust, dataset_1p3ToF_0yr.x_1(3,:) + dataset_1p3ToF_0yr.x_2(3,:)); hold on
+scatter3(dataset.dV_lambert, dataset.dV_lowthrust, dataset.x_1(3,:) + dataset.x_2(3,:)); hold on
 xlabel("Lambert dV [km / s]")
 ylabel("Low Thrust dV [km / s]")
 title("Low Thrust dV vs Lambert dV")
-subtitle(sprintf("For %.1f Month Asteroid Transfers at Year %.2f", dataset_EA_1p3ToF_0yr.ToF * t_star / year_to_sec * 12, dataset_EA_1p3ToF_0yr.t0 * t_star / year_to_sec))
+subtitle(sprintf("For %.1f Month Asteroid Transfers at Year %.2f", dataset.ToF * t_star / year_to_sec * 12, dataset.t0 * t_star / year_to_sec))
 grid on
 hold off
  
 %%
 
-ig = converged_is(3);
+ig = converged_is(5);
 x = ptr_sols.x(:, :, ig);
 u = ptr_sols.u(:, :, ig);
 p = ptr_sols.p(:, ig);
@@ -354,9 +384,11 @@ title("Mass")
 xlabel("Time")
 
 %% Plot a bunch of solutions
+[dV_sorted, dV_sort_i] = sort(dataset.dV_lowthrust, "ascend");
+
 figure
-for ic = 1 : numel(converged_is)
-    ig = converged_is(ic);%converged_is(round(rand(1) * numel(converged_is)));
+for ic = 1 : 30%numel(converged_is)
+    ig = converged_is(dV_sort_i(ic));%converged_is(round(rand(1) * numel(converged_is)));
     x = ptr_sols.x(:, :, ig);
     u = ptr_sols.u(:, :, ig);
     p = ptr_sols.p(:, ig);
@@ -420,7 +452,7 @@ dV_rocket_equation = Isp * g_0 * log(problem.x0(7) / x(7, end)) / 1000 / v_star;
 
 rel_dV_error_perc_rocket_equation = (dV_cont - dV_rocket_equation) / dV_cont * 100
 
-low_thrust_over_lambert = dV_rocket_equation / dV_best_AA_filtered(ig)
+low_thrust_over_lambert = dV_rocket_equation / dV_best_EA_filtered(ig)
 
 
 %% Helper

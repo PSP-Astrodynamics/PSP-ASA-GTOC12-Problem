@@ -1,4 +1,3 @@
-
 function [guess] = lambert_simple_initial_guess(x_1, x_2, v_1_trans, v_2_trans, N_rev, t_k, m_0)
     % Construct initial guess from lambert solution
     

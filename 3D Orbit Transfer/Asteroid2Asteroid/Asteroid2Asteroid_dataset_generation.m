@@ -9,13 +9,15 @@
 % Most Recent Change: 16 September, 2025
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-IDs = 1:4000; % Asteroid IDs to consider - NEED TO BE ABLE TO HAVE ARBITRARY ID ARRAY
-n_datasets = 7;
-m0_frac = linspace(0.9, 0.35, n_datasets);
-t0_yr = linspace(1.5, 13.5, n_datasets);
-ToF_yr = 0.5 * ones([1, n_datasets]);
+IDs = 45000:48000; % Asteroid IDs to consider
+n_datasets = 3;
+m0_frac = linspace(0.6, 0.4, n_datasets);
+t0_yr = linspace(7.5, 9.5, n_datasets);
+ToF_yr = linspace(0.7, 0.9, n_datasets);
 
 converged_is = {};
-for i = 7 : n_datasets
-    [~, ~, converged_is{i}] = Asteroid2Asteroid_lowthrust_batch_func(IDs, m0_frac(i), t0_yr(i), ToF_yr(i));
+for j = 1 : numel(ToF_yr) % loop over ToF
+    for i = 1 : n_datasets
+        [~, ~, converged_is{i}] = Asteroid2Asteroid_lowthrust_batch_func(IDs, m0_frac(i), t0_yr(i), ToF_yr(j));
+    end
 end

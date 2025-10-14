@@ -14,7 +14,7 @@ year_to_sec = 86400.0 * 365.25;
 u_max = 0.6; % [N]
 mu = 1;
 mu_dim = mu_star;
-m0 = 3000 / m_star * 0.45;
+m0 = 3000 / m_star * 0.40;
 m_min = 500 / m_star; % dependent on a lot
 t0 = 14 * year_to_sec / t_star;
 tf = 15 * year_to_sec / t_star;
@@ -96,7 +96,7 @@ load_lambert()
 %% Lambertify
 ast_data = importdata('GTOC12_Asteroids_Data.txt');
 offset = 2;
-IDs = 1 : 60;
+IDs = 13270 : 13270;
 ast.a = ast_data.data(IDs, offset + 1);
 ast.e = ast_data.data(IDs, offset + 2);
 ast.inc = deg2rad(ast_data.data(IDs, offset + 3));
