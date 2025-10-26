@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\thatf\OneDrive\Documents\ASA\PSP-ASA-GTOC12-Problem\Ast2Ast_fixed_FOH_PTR_ECOS\c\build\CMakeFiles\cb34b68d5441debc610cc56572c7894b\INSTALL_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{34A9DD4A-D47C-32EC-AC76-0D89761DB6E3}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

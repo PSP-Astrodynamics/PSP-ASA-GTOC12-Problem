@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32825.248
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "LowThrustGTOC12", "LowThrustGTOC12.pyproj", "{24858C5C-592D-4FEC-9FED-F01CF5844C25}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{24858C5C-592D-4FEC-9FED-F01CF5844C25}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24858C5C-592D-4FEC-9FED-F01CF5844C25}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {33C8297E-D57E-46BA-873E-BA42FF65A17C}
+	EndGlobalSection
+EndGlobal
