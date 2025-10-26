@@ -6,7 +6,8 @@
 % Description: 3DoF landing of rocket using PTR SCP algorithm
 % Most Recent Change: 6 April, 2025
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-addpath(genpath(pwd));
+clear; clc; close all
+% addpath(genpath(pwd));
 
 %% Initialize
 % Vehicle Parameters
